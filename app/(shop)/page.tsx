@@ -88,10 +88,13 @@ function PageContent() {
     refetchOnReconnect: true
   })
 
+  const featuredProductsRaw = (featuredData as { products?: unknown[] } | undefined)?.products
+  const featuredProductsList = Array.isArray(featuredProductsRaw) ? featuredProductsRaw : []
+
   const shouldFetchFallback =
     !isFeaturedLoading &&
     !isFeaturedFetching &&
-    (isFeaturedError || (featuredData?.products || []).length === 0)
+    (isFeaturedError || featuredProductsList.length === 0)
 
   const {
     data: fallbackData,
@@ -109,9 +112,12 @@ function PageContent() {
     }
   )
 
-  const featuredProducts = (featuredData?.products || []).length > 0
-    ? (featuredData?.products || [])
-    : (fallbackData?.products || [])
+  const fallbackProductsRaw = (fallbackData as { products?: unknown[] } | undefined)?.products
+  const fallbackProductsList = Array.isArray(fallbackProductsRaw) ? fallbackProductsRaw : []
+
+  const featuredProducts = featuredProductsList.length > 0
+    ? featuredProductsList
+    : fallbackProductsList
 
   React.useEffect(() => {
     if (!mounted) return
