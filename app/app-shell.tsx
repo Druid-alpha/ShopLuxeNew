@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CompareDrawer from "@/components/CompareDrawer";
@@ -10,7 +10,9 @@ import { Toaster } from "@/components/ui/toaster";
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <ScrollToTop />
+      <Suspense fallback={null}>
+        <ScrollToTop />
+      </Suspense>
       <Navbar />
       <main className="min-h-[80vh] bg-background p-4">{children}</main>
       <Footer />

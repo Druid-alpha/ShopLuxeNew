@@ -432,7 +432,7 @@ export default function ProductDetails() {
     refetchOnReconnect: false,
     skip: !id
   })
-  const product = data?.product
+  const product = (data as any)?.product
 
   const {
     data: reviewsData,
@@ -460,11 +460,11 @@ export default function ProductDetails() {
     }
   }, [])
 
-  const reviews = reviewsData?.reviews || []
+  const reviews = (reviewsData as any)?.reviews || []
 
   const guestWishlist = useAppSelector(state => state.wishlist.items)
   const { data: wishlistData } = useGetWishlistQuery(undefined, { skip: !user })
-  const wishlistItems = wishlistData?.wishlist || []
+  const wishlistItems = (wishlistData?.wishlist || []) as any[]
   const [toggleWishlist] = useToggleWishlistMutation()
 
   /* ================= STATE ================= */
@@ -833,6 +833,14 @@ export default function ProductDetails() {
       selectedVariantRef.current = null
     }
   }, [selectedColorKey, selectedSize, variants])
+
+  const reviewsErrorMessage = (() => {
+    if (!reviewsError) return 'Failed to load reviews.'
+    if (typeof reviewsError === 'object' && reviewsError && 'data' in reviewsError) {
+      return (reviewsError as any)?.data?.message || 'Failed to load reviews.'
+    }
+    return 'Failed to load reviews.'
+  })()
 
   if (isLoading) return null
   if (!product) return <p>Product not found</p>
@@ -1499,7 +1507,7 @@ export default function ProductDetails() {
             </div>
           ) : isReviewsError ? (
             <div className="py-8 px-5 rounded-2xl border border-red-100 bg-red-50 text-sm text-red-700 flex items-center justify-between gap-4">
-              <span>{reviewsError?.data?.message || 'Failed to load reviews.'}</span>
+              <span>{reviewsErrorMessage}</span>
               <Button variant="outline" className="rounded-xl border-red-200" onClick={refetchReviews}>Retry</Button>
             </div>
           ) : (

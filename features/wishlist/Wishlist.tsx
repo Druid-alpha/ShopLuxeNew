@@ -25,7 +25,7 @@ export default function Wishlist() {
 
   // Fetch wishlist from backend
   const { data, isLoading, isError } = useGetWishlistQuery(undefined, { skip: !user })
-  const { data: featuredData } = useGetFeaturedProductsQuery()
+  const { data: featuredData } = useGetFeaturedProductsQuery(undefined)
   const [toggleWishlist] = useToggleWishlistMutation()
   const { data: guestProductsData, isLoading: isGuestLoading } = useGetProductsByIdsQuery(
     { ids: guestWishlist },
@@ -88,12 +88,13 @@ export default function Wishlist() {
   if (isLoading || isGuestLoading) return <p className="text-center p-10">Loading...</p>
   if (isError && user) return <p className="text-center p-10">Error fetching wishlist</p>
 
+  const guestProducts = ((guestProductsData as any)?.products || []) as Product[]
   const wishlist = user
     ? (data?.wishlist || []).filter((p): p is Product => p !== null)
-    : (guestProductsData?.products || []).filter((p): p is Product => p !== null)
+    : guestProducts.filter((p): p is Product => p !== null)
 
   if (!wishlist.length) {
-    const featured = featuredData?.products || []
+    const featured = ((featuredData as any)?.products || []) as Product[]
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-white via-slate-50 to-amber-50 border border-gray-100 rounded-2xl">
         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-6 border border-dashed border-gray-200 shadow-sm">

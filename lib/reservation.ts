@@ -17,7 +17,7 @@ export const clearReservationStorage = () => {
   window.dispatchEvent(new CustomEvent('shopluxe:reservation-updated', { detail: { expiresAt: null } }))
 }
 
-export const releaseReservation = async ({ token } = {}) => {
+export const releaseReservation = async ({ token }: { token?: string } = {}) => {
   const stored = getStoredReservation()
   if (!stored?.orderId) return
   try {
@@ -33,7 +33,7 @@ export const releaseReservation = async ({ token } = {}) => {
   }
 }
 
-export const cancelAllReservations = async ({ token } = {}) => {
+export const cancelAllReservations = async ({ token }: { token?: string } = {}) => {
   try {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/cancel-reservations`, {
       method: 'POST',

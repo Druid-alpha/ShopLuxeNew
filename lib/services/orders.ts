@@ -22,6 +22,11 @@ import {
   generateInvoiceBuffer,
 } from "@/app/api/orders/_shared";
 
+const toBodyInit = (buffer: Buffer | ArrayBuffer) => {
+  if (buffer instanceof ArrayBuffer) return new Uint8Array(buffer);
+  return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+};
+
 export async function listAllOrders(request: NextRequest) {
   await connectDB();
 
@@ -952,7 +957,7 @@ export async function downloadInvoice(request: NextRequest, id: string) {
         await generateInvoiceForOrder(order);
       } catch (err) {
         const buffer = await generateInvoiceBuffer(order);
-        return new NextResponse(buffer, {
+        return new NextResponse(toBodyInit(buffer) as any, {
           status: 200,
           headers: {
             "Content-Type": "application/pdf",
@@ -975,7 +980,7 @@ export async function downloadInvoice(request: NextRequest, id: string) {
       }
 
       const buffer = await response.arrayBuffer();
-      return new NextResponse(buffer, {
+      return new NextResponse(toBodyInit(buffer) as any, {
         status: 200,
         headers: {
           "Content-Type": "application/pdf",
@@ -984,7 +989,7 @@ export async function downloadInvoice(request: NextRequest, id: string) {
       });
     } catch (fetchErr) {
       const buffer = await generateInvoiceBuffer(order);
-      return new NextResponse(buffer, {
+      return new NextResponse(toBodyInit(buffer) as any, {
         status: 200,
         headers: {
           "Content-Type": "application/pdf",

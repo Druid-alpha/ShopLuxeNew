@@ -152,7 +152,7 @@ export async function generateInvoice(order: any) {
   doc.end();
 
   await new Promise((resolve, reject) => {
-    stream.on("finish", resolve);
+    stream.on("finish", () => resolve(undefined));
     stream.on("error", reject);
   });
 

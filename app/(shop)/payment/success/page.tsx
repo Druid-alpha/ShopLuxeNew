@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { clearCart } from "@/features/cart/cartSlice"
@@ -188,7 +188,9 @@ function PageContent() {
 
 export default function Page() {
   return (
-    <PageContent />
+    <Suspense fallback={null}>
+      <PageContent />
+    </Suspense>
   
   );
 }

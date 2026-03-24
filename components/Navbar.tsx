@@ -76,6 +76,7 @@ export default function Navbar() {
     : guestWishlistCount
 
   const [logoutApi] = useLogoutMutation()
+  const avatarSrc = typeof user?.avatar === 'string' ? user.avatar : undefined
 
   const handleLogout = async () => {
     try {
@@ -192,8 +193,8 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                  {user.avatar ? (
-                    <AvatarImage src={user.avatar} />
+                  {avatarSrc ? (
+                    <AvatarImage src={avatarSrc} />
                   ) : (
                     <AvatarFallback>
                       {user.name?.[0]?.toUpperCase() || 'U'}
@@ -435,7 +436,7 @@ export default function Navbar() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
-                    {user.avatar ? <AvatarImage src={user.avatar} /> : <AvatarFallback className="font-black text-xs">{user.name?.[0]}</AvatarFallback>}
+                    {avatarSrc ? <AvatarImage src={avatarSrc} /> : <AvatarFallback className="font-black text-xs">{user.name?.[0]}</AvatarFallback>}
                   </Avatar>
                   <div className="min-w-0">
                     <p className="text-sm font-black uppercase tracking-tight truncate">{user.name}</p>

@@ -62,10 +62,14 @@ export default function ReviewList({ reviews = [], productId, onRefetch }) {
   }
 
   const sortedReviews = [...reviews].sort((a, b) => {
-    if (sort === 'helpful') return (b.helpful || 0) - (a.helpful || 0) || (new Date(b.createdAt) - new Date(a.createdAt))
+    if (sort === 'helpful') {
+      const helpfulDelta = (b.helpful || 0) - (a.helpful || 0)
+      if (helpfulDelta !== 0) return helpfulDelta
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    }
     if (sort === 'highest') return b.rating - a.rating
     if (sort === 'lowest') return a.rating - b.rating
-    return new Date(b.createdAt) - new Date(a.createdAt)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
 
   if (!reviews.length) {

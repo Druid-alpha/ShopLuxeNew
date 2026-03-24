@@ -4,10 +4,10 @@ import Category from "@/lib/db/models/Category";
 import Color from "@/lib/db/models/Color";
 
 export const CLOTHING_TYPES = ["clothes", "shoes", "bags", "bag", "eyeglass"] as const;
-export const CLOTHES_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
-export const SHOE_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"] as const;
-export const BAG_SIZES = ["Small", "Medium", "Large"] as const;
-export const EYEGLASS_SIZES = ["One Size"] as const;
+export const CLOTHES_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as readonly string[];
+export const SHOE_SIZES = ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"] as readonly string[];
+export const BAG_SIZES = ["Small", "Medium", "Large"] as readonly string[];
+export const EYEGLASS_SIZES = ["One Size"] as readonly string[];
 
 const FEATURED_CACHE_TTL_MS = 60 * 1000;
 const LIST_CACHE_TTL_MS = 30 * 1000;

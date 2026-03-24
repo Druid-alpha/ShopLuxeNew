@@ -414,27 +414,41 @@ export const normalizeCart = (cart: ServerCartItem[]): NormalizedCartItem[] => {
     .filter(item => item.product && (typeof item.product === 'object'))
     .map((item, index) => {
       const product = item.product;
+      const variantObjFromItem =
+        typeof item.variant === "string" || !item.variant ? null : item.variant;
       const variantSku =
         typeof item.variant === 'string'
           ? item.variant
           : item.variant?.sku || null;
-      const variantId = item.variant?._id || null
+      const variantId = variantObjFromItem?._id || null
 
       const variantObj = product.variants?.find(v => v.sku === variantSku) || null;
-      const variantSize = variantObj?.options?.size || item.variant?.size || null
+      const variantSize =
+        variantObj?.options?.size ||
+        (variantObjFromItem as any)?.size ||
+        (variantObjFromItem as any)?.options?.size ||
+        null
       const variantColorObj = variantObj?.options?.color || null
+      const variantColorFromItem =
+        (variantObjFromItem as any)?.color ||
+        (variantObjFromItem as any)?.options?.color ||
+        null
       const baseColorObj = product.color || null
-      const productColorName = getColorName(baseColorObj) || getColorName(item.variant?.color) || ""
-      const variantColorName = getColorName(variantColorObj) || productColorName || getColorName(item.variant?.color)
+      const productColorName = getColorName(baseColorObj) || getColorName(variantColorFromItem) || ""
+      const variantColorName = getColorName(variantColorObj) || productColorName || getColorName(variantColorFromItem)
       const variantColorHex = resolveHex(variantColorObj)
         || resolveHex(baseColorObj)
-        || resolveHex(item.variant?.color)
+        || resolveHex(variantColorFromItem)
         || null
       // Only send color in payload if it actually belongs to the cart item's variant.
       // Base product color is display-only and should not be used for matching.
       const variantColorValueForPayload = variantSku
-        ? (variantColorObj?._id || variantColorObj?.name || item.variant?.color || null)
-        : (item.variant?.color || null)
+        ? (
+          (variantColorObj && typeof variantColorObj === "object" && "_id" in variantColorObj
+            ? (variantColorObj as any)._id
+            : (variantColorObj as any)?.name) || variantColorFromItem || null
+        )
+        : (variantColorFromItem || null)
       const variantLabel = buildVariantLabel({
         variantSku,
         size: variantSize,
@@ -493,7 +507,7 @@ export const normalizeCart = (cart: ServerCartItem[]): NormalizedCartItem[] => {
         key: `${product._id || product.id || Math.random()}-${getVariantKey(item.variant)}`,
         productId: product._id || product.id,
         title: product.title || 'Product',
-        productCategoryName: product?.category?.name || (typeof product?.category === 'string' ? product.category : ''),
+        productCategoryName: typeof product?.category === 'string' ? product.category : (product?.category?.name || ''),
         productReserved: product?.reserved ?? 0,
         productTotalReserved: totalReserved,
         price: finalPrice,
@@ -504,7 +518,7 @@ export const normalizeCart = (cart: ServerCartItem[]): NormalizedCartItem[] => {
         variantPayload,
         variantLabel,
         variantSize,
-        variantColor: variantColorObj || item.variant?.color || baseColorObj || null,
+        variantColor: variantColorObj || variantColorFromItem || baseColorObj || null,
         variantColorHex,
         variantColorName,
         productColorName,
@@ -519,7 +533,7 @@ export const normalizeCart = (cart: ServerCartItem[]): NormalizedCartItem[] => {
         addedAt
       } as NormalizedCartItem;
     })
-    .sort((a, b) => new Date(b.addedAt || 0) - new Date(a.addedAt || 0));
+    .sort((a, b) => new Date(b.addedAt || 0).getTime() - new Date(a.addedAt || 0).getTime());
 };
 
 export const getCart = async () => {

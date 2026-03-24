@@ -3,8 +3,8 @@ import type { NextRequest } from "next/server";
 import User from "@/lib/db/models/user";
 
 type AuthResult =
-  | { ok: true; userId: string; role: string }
-  | { ok: false; status: number; message: string };
+  | { ok: true; userId: string; role: string; status?: number; message?: string }
+  | { ok: false; status: number; message: string; userId?: string; role?: string };
 
 const getBearer = (request: NextRequest) => {
   const auth = request.headers.get("authorization");

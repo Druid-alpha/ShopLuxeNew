@@ -20,7 +20,7 @@ export const productApi = api.injectEndpoints({
 
     /* ================= PUBLIC ================= */
 
-    getProducts: builder.query({
+    getProducts: builder.query<any, any>({
       query: ({
         page = 1,
         limit = 12,
@@ -88,7 +88,7 @@ export const productApi = api.injectEndpoints({
       providesTags: ["Product"],
     }),
 
-    getProductsByIds: builder.query({
+    getProductsByIds: builder.query<any, any>({
       query: ({ ids = [] } = {}) => ({
         url: "/products/by-ids",
         params: cleanParams({
@@ -122,7 +122,6 @@ export const productApi = api.injectEndpoints({
         url: `/reviews/${productId}`,
         method: "POST",
         body: { rating, body: comment },
-        credentials: "include",
       }),
       invalidatesTags: (result, error, arg) => [
         { type: "Review", id: arg.productId },
@@ -135,7 +134,6 @@ export const productApi = api.injectEndpoints({
         url: `/reviews/${reviewId}`,
         method: "PUT",
         body: { rating, body: comment },
-        credentials: "include",
       }),
       invalidatesTags: ["Review"],
     }),
@@ -144,7 +142,6 @@ export const productApi = api.injectEndpoints({
       query: (reviewId) => ({
         url: `/reviews/${reviewId}`,
         method: "DELETE",
-        credentials: "include",
       }),
       invalidatesTags: ["Review"],
     }),
@@ -154,14 +151,12 @@ export const productApi = api.injectEndpoints({
         const primary = await baseQuery({
           url: `/reviews/admin/${reviewId}`,
           method: "DELETE",
-          credentials: "include",
         })
         if (!primary.error) return { data: primary.data }
 
         const fallback = await baseQuery({
           url: `/reviews/${reviewId}`,
           method: "DELETE",
-          credentials: "include",
         })
         if (!fallback.error) return { data: fallback.data }
 
@@ -178,11 +173,10 @@ export const productApi = api.injectEndpoints({
       invalidatesTags: ["Review"],
     }),
 
-    getAdminReviews: builder.query({
+    getAdminReviews: builder.query<any, any>({
       query: ({ page = 1, search, rating, verified, featured } = {}) => ({
         url: "/reviews/admin/all",
         params: cleanParams({ page, search, rating, verified, featured }),
-        credentials: "include",
       }),
       providesTags: ["Review"],
     }),
@@ -206,14 +200,13 @@ export const productApi = api.injectEndpoints({
       query: (reviewId) => ({
         url: `/reviews/admin/${reviewId}/feature`,
         method: "PATCH",
-        credentials: "include",
       }),
       invalidatesTags: ["Review"],
     }),
 
     /* ================= ADMIN ================= */
 
-    getAdminProducts: builder.query({
+    getAdminProducts: builder.query<any, any>({
       async queryFn(
         {
           page = 1,
@@ -249,14 +242,12 @@ export const productApi = api.injectEndpoints({
         const primary = await baseQuery({
           url: "/admin/products",
           params,
-          credentials: "include",
         })
         if (!primary.error) return { data: primary.data }
 
         const fallback = await baseQuery({
           url: "/products/admin",
           params,
-          credentials: "include",
         })
         if (!fallback.error) return { data: fallback.data }
 
@@ -271,7 +262,6 @@ export const productApi = api.injectEndpoints({
         url: "/products/admin",
         method: "POST",
         body: formData, // FormData (images + payload)
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -281,7 +271,6 @@ export const productApi = api.injectEndpoints({
         url: `/products/admin/${id}`,
         method: "PUT",
         body: formData,
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -291,7 +280,6 @@ export const productApi = api.injectEndpoints({
         url: `/products/admin/${id}/variants`,
         method: "PUT",
         body: formData,
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -300,7 +288,6 @@ export const productApi = api.injectEndpoints({
         url: `/products/admin/${id}/feature`,
         method: "PATCH",
         body: { featured },
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -308,7 +295,6 @@ export const productApi = api.injectEndpoints({
       query: (id) => ({
         url: `/products/admin/${id}`,
         method: "DELETE",
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -317,7 +303,6 @@ export const productApi = api.injectEndpoints({
       query: (id) => ({
         url: `/products/admin/${id}/restore`,
         method: "PATCH",
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -326,7 +311,6 @@ export const productApi = api.injectEndpoints({
       query: () => ({
         url: "/products/admin/restore-all",
         method: "PATCH",
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -335,7 +319,6 @@ export const productApi = api.injectEndpoints({
       query: (id) => ({
         url: `/products/admin/${id}/hard`,
         method: "DELETE",
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),
@@ -344,7 +327,6 @@ export const productApi = api.injectEndpoints({
       query: () => ({
         url: "/products/admin/hard-delete-all",
         method: "DELETE",
-        credentials: "include",
       }),
       invalidatesTags: ["Product"],
     }),

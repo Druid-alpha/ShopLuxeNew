@@ -42,8 +42,8 @@ type ExpressLikeResponse = {
 
 type Controller = (req: ExpressLikeRequest, res: ExpressLikeResponse, next?: (err?: unknown) => void) => Promise<void> | void;
 
-const parseCookies = () => {
-  const store = nextCookies();
+const parseCookies = async () => {
+  const store = await nextCookies();
   const out: Record<string, string> = {};
   for (const cookie of store.getAll()) {
     out[cookie.name] = cookie.value;
@@ -121,7 +121,7 @@ async function buildReqRes(request: NextRequest, params: Record<string, string>)
     params,
     query: buildQuery(request),
     headers,
-    cookies: parseCookies(),
+    cookies: await parseCookies(),
     files,
     file,
   };

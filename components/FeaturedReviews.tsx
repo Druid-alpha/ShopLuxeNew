@@ -73,7 +73,7 @@ export default function FeaturedReviews() {
                 </div>
             </div>
 
-            <style jsx="true">{`
+            <style jsx>{`
                 .review-marquee {
                     width: 100%;
                     overflow: hidden;

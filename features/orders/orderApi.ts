@@ -6,8 +6,7 @@ export const orderApi = api.injectEndpoints({
             query: (payload) => ({
                 url: '/orders',
                 method: 'POST',
-                body: payload,
-                credentials: 'include'
+                body: payload
             }),
             invalidatesTags: ['Order']
         }),
@@ -17,8 +16,7 @@ export const orderApi = api.injectEndpoints({
         }),
         getAllOrders: builder.query({
             query: () => '/orders',
-            providesTags: ['Order'],
-            credentials: 'include'
+            providesTags: ['Order']
         }),
         getOrder: builder.query({
             query: (id) => `/orders/${id}`,
@@ -27,8 +25,7 @@ export const orderApi = api.injectEndpoints({
         generateOrderInvoice: builder.mutation({
             query: (id) => ({
                 url: `/orders/${id}/invoice`,
-                method: 'POST',
-                credentials: 'include'
+                method: 'POST'
             }),
             invalidatesTags: (result, error, id) => [{ type: 'Order', id }]
         }),
@@ -36,16 +33,14 @@ export const orderApi = api.injectEndpoints({
             query: ({ id, ...body }) => ({
                 url: `/orders/${id}/status`,
                 method: 'PATCH',
-                body: body,
-                credentials: 'include'
+                body: body
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order']
         }),
         deleteOrder: builder.mutation({
             query: (id) => ({
                 url: `/orders/${id}`,
-                method: 'DELETE',
-                credentials: 'include'
+                method: 'DELETE'
             }),
             invalidatesTags: ['Order']
         }),
@@ -53,8 +48,7 @@ export const orderApi = api.injectEndpoints({
             query: (orderIds) => ({
                 url: '/admin/orders/delete-bulk',
                 method: 'POST',
-                body: { orderIds },
-                credentials: 'include'
+                body: { orderIds }
             }),
             invalidatesTags: ['Order']
         }),
@@ -62,8 +56,7 @@ export const orderApi = api.injectEndpoints({
             query: ({ id, reason }) => ({
                 url: `/orders/${id}/return`,
                 method: 'POST',
-                body: { reason },
-                credentials: 'include'
+                body: { reason }
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order']
         }),
@@ -71,8 +64,7 @@ export const orderApi = api.injectEndpoints({
             query: ({ id, status, note, refundAmount }) => ({
                 url: `/orders/${id}/return`,
                 method: 'PATCH',
-                body: { status, note, refundAmount },
-                credentials: 'include'
+                body: { status, note, refundAmount }
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order']
         }),
@@ -80,8 +72,7 @@ export const orderApi = api.injectEndpoints({
             query: ({ id, message }) => ({
                 url: `/orders/${id}/return/message`,
                 method: 'POST',
-                body: { message },
-                credentials: 'include'
+                body: { message }
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order']
         }),
@@ -89,8 +80,7 @@ export const orderApi = api.injectEndpoints({
             query: ({ id, message, attachments, formData }) => ({
                 url: `/orders/${id}/return/message/user`,
                 method: 'POST',
-                body: formData ?? { message, attachments },
-                credentials: 'include'
+                body: formData ?? { message, attachments }
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order']
         }),
@@ -98,16 +88,14 @@ export const orderApi = api.injectEndpoints({
             query: ({ id, formData }) => ({
                 url: `/orders/${id}/return/attachments`,
                 method: 'POST',
-                body: formData,
-                credentials: 'include'
+                body: formData
             })
         }),
         refundOrder: builder.mutation({
             query: ({ orderId, amount, reason }) => ({
                 url: `/payments/paystack/refund`,
                 method: 'POST',
-                body: { orderId, amount, reason },
-                credentials: 'include'
+                body: { orderId, amount, reason }
             }),
             invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }, 'Order']
         })

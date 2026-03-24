@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { wishlistApi } from "./wishlistApi";
+import type { Product } from "@/types/models";
 
 const loadGuestWishlist = (): string[] => {
   try {
@@ -47,7 +48,9 @@ const wishlistSlice = createSlice({
     builder.addMatcher(
       wishlistApi.endpoints.getWishlist.matchFulfilled,
       (state, { payload }) => {
-        state.items = payload.wishlist || [];
+        state.items = (payload.wishlist || [])
+          .map((p: Product | null | undefined) => p?._id)
+          .filter((id): id is string => Boolean(id));
       }
     );
   }

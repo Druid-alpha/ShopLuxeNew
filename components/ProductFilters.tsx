@@ -82,7 +82,7 @@ export default function ProductFilters({
   const loadFilters = React.useCallback(async () => {
     setLoading(true)
     try {
-      const params = { category: isObjectId(category) ? category : undefined }
+      const params: { category?: string; clothingType?: string } = { category: isObjectId(category) ? category : undefined }
       if (isClothing && clothingType) params.clothingType = normalizeClothingType(clothingType)
 
       const res = await axios.get('/products/filters', { params })

@@ -1,7 +1,7 @@
 import { api } from "@/store/api";
 import type { Product } from "@/types/models";
 
-type WishlistResponse = { wishlist?: Product[] };
+type WishlistResponse = { wishlist?: Product[]; message?: string };
 
 export const wishlistApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,7 +9,6 @@ export const wishlistApi = api.injectEndpoints({
     getWishlist: builder.query<WishlistResponse, void>({
       query: () => ({
         url: "/wishlist",
-        credentials: "include",
       }),
       providesTags: ["Wishlist"],
     }),
@@ -20,7 +19,6 @@ export const wishlistApi = api.injectEndpoints({
         url: "/wishlist/toggle",
         method: "POST",
         body: { productId },
-        credentials: "include",
       }),
       invalidatesTags: ["Wishlist"],
     }),

@@ -1,5 +1,8 @@
 import { unstable_cache } from "next/cache";
 import { connectDB } from "@/lib/db";
+import "@/lib/db/models/Brand";
+import "@/lib/db/models/Category";
+import "@/lib/db/models/Color";
 import Product from "@/lib/db/models/product";
 
 async function fetchFeaturedProducts() {
