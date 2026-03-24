@@ -8,6 +8,7 @@ import Link from "next/link"
 import Slider from 'react-slick'
 import { ArrowRight, Truck, ShieldCheck, Clock } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
+import type { Variants } from 'framer-motion'
 
 import { useGetFeaturedProductsQuery, useGetProductsQuery } from '@/features/products/productApi'
 import ProductCard from '@/features/products/ProductCard'
@@ -47,7 +48,7 @@ function PageContent() {
   const reduceMotion = prefersReducedMotion || isMobile
 
   // --- Animation Variants (lighter on mobile) ---
-  const staggerContainer = React.useMemo(() => ({
+  const staggerContainer = React.useMemo<Variants>(() => ({
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -55,24 +56,24 @@ function PageContent() {
     }
   }), [reduceMotion])
 
-  const fadeUp = React.useMemo(() => ({
+  const fadeUp = React.useMemo<Variants>(() => ({
     hidden: { opacity: 0, y: reduceMotion ? 0 : 30 },
-    show: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: "easeOut" } }
+    show: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] } }
   }), [reduceMotion])
 
-  const scaleIn = React.useMemo(() => ({
+  const scaleIn = React.useMemo<Variants>(() => ({
     hidden: { opacity: 0, scale: reduceMotion ? 1 : 0.9 },
-    show: { opacity: 1, scale: 1, transition: { duration: reduceMotion ? 0.2 : 0.5, ease: "easeOut" } }
+    show: { opacity: 1, scale: 1, transition: { duration: reduceMotion ? 0.2 : 0.5, ease: [0.16, 1, 0.3, 1] } }
   }), [reduceMotion])
 
-  const slideInLeft = React.useMemo(() => ({
+  const slideInLeft = React.useMemo<Variants>(() => ({
     hidden: { opacity: 0, x: reduceMotion ? 0 : -50 },
-    show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: "easeOut" } }
+    show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] } }
   }), [reduceMotion])
 
-  const slideInRight = React.useMemo(() => ({
+  const slideInRight = React.useMemo<Variants>(() => ({
     hidden: { opacity: 0, x: reduceMotion ? 0 : 50 },
-    show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: "easeOut" } }
+    show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] } }
   }), [reduceMotion])
 
   const motionViewport = reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-100px" }
