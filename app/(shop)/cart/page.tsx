@@ -13,6 +13,7 @@ import { Trash, Loader2, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { clearReservationStorage, cancelAllReservations, getStoredReservation } from '@/lib/reservation';
 import { productApi } from '@/features/products/productApi';
+import { apiUrl } from '@/lib/apiBase';
 
 const CLOTHING_TYPES = new Set(['clothes', 'shoes', 'bags', 'eyeglass'])
 const SIZE_TYPE_LABEL = {
@@ -310,7 +311,7 @@ function PageContent() {
     if (!user || reservationExpiresAt) return
     const syncReservation = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/pending-reservation`, {
+        const res = await fetch(apiUrl('/orders/pending-reservation'), {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -757,14 +758,6 @@ function PageContent() {
 export default function Page() {
   return (<PageTransition>
     <PageContent />
-    <div className="mx-auto max-w-5xl px-4 pb-10">
-      <a
-        href="/cart/actions"
-        className="inline-flex rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-black"
-      >
-        Cart Server Actions Demo
-      </a>
-    </div>
   </PageTransition>
   );
 }

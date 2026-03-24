@@ -11,6 +11,7 @@ import { CheckCircle2, XCircle, Loader2, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Confetti from "react-confetti"
 import { releaseReservation, clearReservationStorage } from "@/lib/reservation"
+import { apiUrl } from "@/lib/apiBase"
 
 function PageContent() {
   const params = useSearchParams()
@@ -41,15 +42,12 @@ function PageContent() {
       }
 
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/payments/verify/${reference}`,
-          {
-            credentials: "include",
-            headers: {
-              ...(token ? { Authorization: `Bearer ${token}` } : {})
-            }
+        const res = await fetch(apiUrl(`/payments/verify/${reference}`), {
+          credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
           }
-        )
+        })
         const data = await res.json()
         if (!res.ok) throw new Error(data.message || "Payment verification failed")
 

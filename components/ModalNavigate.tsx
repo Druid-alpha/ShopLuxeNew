@@ -15,7 +15,8 @@ export default function ModalNavigate({ href, className, children }: Props) {
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    router.push(href);
+    router.replace(href);
+    router.refresh();
   };
 
   return (

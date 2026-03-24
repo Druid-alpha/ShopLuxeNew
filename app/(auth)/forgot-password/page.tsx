@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { apiUrl } from "@/lib/apiBase"
 
 function PageContent() {
   const [email, setEmail] = useState("")
@@ -19,7 +20,7 @@ function PageContent() {
 
     try {
       setIsSending(true)
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
+      const res = await fetch(apiUrl("/auth/forgot-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -70,15 +71,9 @@ function PageContent() {
 
         <div className="mt-8 border-t border-slate-200 pt-6 text-center">
           <p className="text-sm text-slate-600">
-            Remember your passwordNGN {" "}
+            Remember your password?{" "}
             <Link href="/login" className="font-semibold text-slate-900 hover:underline">
               Back to login
-            </Link>
-          </p>
-          <p className="mt-3 text-xs text-slate-500">
-            Want the Server Action version?{" "}
-            <Link href="/actions/forgot-password" className="font-semibold text-slate-900 hover:underline">
-              Try it here
             </Link>
           </p>
         </div>

@@ -418,23 +418,6 @@ function PageContent() {
 export default function Page() {
   return (<PageTransition>
     <PageContent />
-    <section className="mx-auto max-w-6xl px-6 pb-12">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Learning</p>
-        <h2 className="mt-2 text-xl font-black text-slate-900">Explore Next.js Concepts</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          We wired every major Next.js concept into real pages. Use the checklist to explore.
-        </p>
-        <div className="mt-4">
-          <a
-            href="/next-concepts"
-            className="inline-flex rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white"
-          >
-            Open checklist
-          </a>
-        </div>
-      </div>
-    </section>
   </PageTransition>
   );
 }

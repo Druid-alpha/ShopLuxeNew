@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast'
 import { Camera, User, Loader2, CheckCircle2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Link from "next/link"
+import { apiUrl } from "@/lib/apiBase"
 
 function PageContent() {
   const { user, token } = useAppSelector((state) => state.auth)
@@ -51,7 +52,7 @@ function PageContent() {
 
       const endpoint = avatarFile ? `/users/me/avatar` : `/users/me`
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
+      const res = await fetch(apiUrl(endpoint), {
         method: 'PUT',
         credentials: 'include',
         body: avatarFile ? formData : JSON.stringify({ name }),

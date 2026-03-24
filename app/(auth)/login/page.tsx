@@ -187,21 +187,9 @@ function PageContent() {
 
         <div className="mt-8 border-t border-slate-200 pt-6 text-center">
           <p className="text-sm text-slate-600">
-            New to ShopLuxeNGN {" "}
+            New to ShopLuxe?{" "}
             <Link href="/register" className="font-semibold text-slate-900 hover:underline">
               Create an account
-            </Link>
-          </p>
-          <p className="mt-3 text-xs text-slate-500">
-            Want the Server Action version?{" "}
-            <Link href="/actions/login" className="font-semibold text-slate-900 hover:underline">
-              Try it here
-            </Link>
-          </p>
-          <p className="mt-2 text-xs text-slate-500">
-            Explore auth routing concepts:{" "}
-            <Link href="/learn" className="font-semibold text-slate-900 hover:underline">
-              Learning hub
             </Link>
           </p>
         </div>

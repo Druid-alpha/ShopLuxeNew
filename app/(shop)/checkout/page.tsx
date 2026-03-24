@@ -12,6 +12,7 @@ import { clearReservationStorage, cancelAllReservations } from '@/lib/reservatio
 import { setCart } from '@/features/cart/cartSlice'
 import * as cartApi from '@/features/cart/cartApi'
 import { productApi } from '@/features/products/productApi'
+import { apiUrl } from '@/lib/apiBase'
 
 function PageContent() {
   const cart = useAppSelector(state => state.cart.items)
@@ -113,7 +114,7 @@ function PageContent() {
     if (reservationExpiresAt) return
     const syncReservation = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/pending-reservation`, {
+        const res = await fetch(apiUrl('/orders/pending-reservation'), {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -200,7 +201,7 @@ function PageContent() {
     setLoading(true)
 
     try {
-      const validateRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/validate`, {
+      const validateRes = await fetch(apiUrl('/orders/validate'), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -222,7 +223,7 @@ function PageContent() {
       }
 
       // 1. Create order with shipping address
-      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
+      const orderRes = await fetch(apiUrl('/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +237,7 @@ function PageContent() {
       if (!orderRes.ok) {
         if (orderRes.status === 409) {
           try {
-            const retryValidate = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/validate`, {
+            const retryValidate = await fetch(apiUrl('/orders/validate'), {
               method: 'POST',
               credentials: 'include',
               headers: {
@@ -261,7 +262,7 @@ function PageContent() {
       }
 
       // 2. Initialize Paystack transaction
-      const payRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/paystack/init`, {
+      const payRes = await fetch(apiUrl('/payments/paystack/init'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

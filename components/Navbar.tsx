@@ -62,6 +62,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const navigate = (path) => router.push(path)
+  const isAdmin = String(user?.role || '').toLowerCase() === 'admin'
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
   
@@ -212,7 +213,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
 
                 {/* Admin dropdown */}
-                {mounted && user.role === 'admin' && (
+                {mounted && isAdmin && (
                   <>
                     <DropdownMenuSeparator />
                     {adminLinks.map((link) => (
@@ -382,7 +383,7 @@ export default function Navbar() {
               </div>
 
               {/* Admin Access */}
-              {mounted && user?.role === 'admin' && (
+              {mounted && isAdmin && (
                 <div className="pt-6 space-y-1">
                   <p className="px-4 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4">Admin Dashboard</p>
                   {adminLinks.map(link => (

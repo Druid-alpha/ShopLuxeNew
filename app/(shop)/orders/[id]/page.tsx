@@ -14,6 +14,7 @@ import { productApi } from '@/features/products/productApi'
 import { useGenerateOrderInvoiceMutation, useGetOrderQuery, useRequestReturnMutation, useAddReturnMessageUserMutation } from '@/features/orders/orderApi'
 import { useToast } from '@/hooks/use-toast'
 import { estimateEtaRange } from '@/lib/eta'
+import { apiUrl } from '@/lib/apiBase'
 
 function PageContent() {
   const params = useParams()
@@ -174,7 +175,7 @@ function PageContent() {
 
     let usedFallback = false
     try {
-      const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/orders/${order._id}/invoice/download`
+      const backendUrl = apiUrl(`/orders/${order._id}/invoice/download`)
       toast({
         title: 'Download started',
         description: 'Your invoice is being prepared.',
@@ -186,7 +187,7 @@ function PageContent() {
       try {
         // Ensure invoice exists if download failed, then retry once.
         await generateInvoice(order._id).unwrap()
-        const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/orders/${order._id}/invoice/download`
+        const backendUrl = apiUrl(`/orders/${order._id}/invoice/download`)
         toast({
           title: 'Download started',
           description: 'Your invoice is being prepared.',
@@ -258,7 +259,7 @@ function PageContent() {
         const formData = new FormData()
         formData.append('message', returnMessage || 'Attachment(s) provided')
         filesToSend.forEach((file) => formData.append('files', file))
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${order._id}/return/message/user`, {
+        const res = await fetch(apiUrl(`/orders/${order._id}/return/message/user`), {
           method: 'POST',
           credentials: 'include',
           headers: {

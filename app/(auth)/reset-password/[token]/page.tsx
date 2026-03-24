@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast'
 import React, { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react'
+import { apiUrl } from '@/lib/apiBase'
 
 function PageContent() {
   const params = useParams()
@@ -30,7 +31,7 @@ function PageContent() {
         return
       }
       setIsSubmitting(true)
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password/${token}`, {
+      const res = await fetch(apiUrl(`/auth/reset-password/${token}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),

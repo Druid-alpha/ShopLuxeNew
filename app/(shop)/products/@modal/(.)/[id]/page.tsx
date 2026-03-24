@@ -53,12 +53,12 @@ export default async function ProductQuickViewModal({ params }: { params: Params
             <div>
               <h2 className="text-xl font-bold text-slate-900">{product.title}</h2>
               <p className="mt-1 text-sm text-slate-500">
-                {product.reviewsCount || 0} reviews · {Number(product.avgRating || 0).toFixed(1)} rating
+                {product.reviewsCount || 0} reviews - {Number(product.avgRating || 0).toFixed(1)} rating
               </p>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-2xl font-extrabold text-slate-900">
-                ₦{finalPrice.toLocaleString()}
+                NGN {finalPrice.toLocaleString()}
               </span>
               {discount > 0 && (
                 <span className="text-sm font-semibold text-rose-600">-{discount}%</span>

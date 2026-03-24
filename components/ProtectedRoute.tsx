@@ -1,12 +1,17 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGetProfileQuery } from '@/features/auth/authApi'
 
 export default function ProtectedRoute({ children, roles }) {
   const { data, isLoading, isError } = useGetProfileQuery()
   const router = useRouter()
+  const normalizedRoles = useMemo(
+    () => (Array.isArray(roles) ? roles.map((role) => String(role).toLowerCase()) : undefined),
+    [roles]
+  )
+  const userRole = String(data?.user?.role || '').toLowerCase()
 
   useEffect(() => {
     if (isLoading) return
@@ -14,14 +19,14 @@ export default function ProtectedRoute({ children, roles }) {
       router.replace('/login')
       return
     }
-    if (roles && !roles.includes(data.user.role)) {
+    if (normalizedRoles && !normalizedRoles.includes(userRole)) {
       router.replace('/')
     }
-  }, [data?.user, isError, isLoading, roles, router])
+  }, [data?.user, isError, isLoading, normalizedRoles, router, userRole])
 
   if (isLoading) return null
   if (isError || !data?.user) return null
-  if (roles && !roles.includes(data.user.role)) return null
+  if (normalizedRoles && !normalizedRoles.includes(userRole)) return null
 
   return children
 }

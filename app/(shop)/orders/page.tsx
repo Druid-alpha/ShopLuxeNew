@@ -11,6 +11,7 @@ import { estimateEtaRange } from '@/lib/eta'
 import { CheckCircle2, Clock, Package, Truck, XCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAppSelector } from '@/store/hooks'
+import { apiUrl } from '@/lib/apiBase'
 
 const STATUS_META = {
   pending: { label: 'Pending', tone: 'bg-amber-50 text-amber-700 border-amber-100', icon: Clock },
@@ -136,7 +137,7 @@ function PageContent() {
                   filesToSend.forEach((file) => {
                     if (file) formData.append('files', file)
                   })
-                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${order._id}/return/message/user`, {
+                  const res = await fetch(apiUrl(`/orders/${order._id}/return/message/user`), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
