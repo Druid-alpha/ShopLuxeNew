@@ -18,8 +18,10 @@ export type AuthActionState = {
 
 const setAuthCookies = async (accessToken: string, refreshToken: string) => {
   const jar = await cookies();
-  jar.set({ name: "accessToken", value: accessToken, ...buildCookieOptions(60 * 60 * 1000) });
-  jar.set({ name: "refreshToken", value: refreshToken, ...buildCookieOptions(7 * 24 * 60 * 60 * 1000) });
+  const accessOptions = buildCookieOptions(60 * 60 * 1000) as any;
+  const refreshOptions = buildCookieOptions(7 * 24 * 60 * 60 * 1000) as any;
+  jar.set("accessToken", accessToken, accessOptions);
+  jar.set("refreshToken", refreshToken, refreshOptions);
 };
 
 export async function loginAction(_prev: AuthActionState, formData: FormData): Promise<AuthActionState> {
