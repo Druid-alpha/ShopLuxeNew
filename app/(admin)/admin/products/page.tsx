@@ -923,8 +923,10 @@ function PageContent() {
                     key={p}
                     type="button"
                     onClick={() => {
-                      setPage(p)
-                      scrollToListTop()
+                      if (typeof p === "number") {
+                        setPage(p)
+                        scrollToListTop()
+                      }
                     }}
                     className={`h-8 min-w-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors ${p === page
                       ? 'bg-black text-white border-black'
