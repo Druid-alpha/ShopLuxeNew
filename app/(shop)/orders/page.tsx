@@ -61,7 +61,7 @@ function PageContent() {
   const fileInputRefs = React.useRef({})
   const ordersRaw = data?.orders || data || []
   const orders = Array.isArray(ordersRaw)
-    ? [...ordersRaw].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    ? [...ordersRaw].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     : []
 
   if (isLoading) {
