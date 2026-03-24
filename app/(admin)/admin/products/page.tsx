@@ -436,9 +436,13 @@ function PageContent() {
 
   if (isLoading && !data) return <p>Loading products...</p>
   if (isError) {
+    const errorMessage =
+      (error as any)?.data?.message ||
+      (error as any)?.error ||
+      "Please check admin auth/session and API route.";
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        Failed to load products: {error?.data?.message || 'Please check admin auth/session and API route.'}
+        Failed to load products: {errorMessage}
       </div>
     )
   }
