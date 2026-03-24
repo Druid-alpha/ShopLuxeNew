@@ -19,6 +19,7 @@ import home from '@/assets/women.jpg'
 import grocery from '@/assets/grocery.jpg'
 import phone from '@/assets/phone.jpg'
 import delivery from '@/assets/delivery.jpg'
+import type { StaticImageData } from 'next/image'
 
 function PageContent() {
   const router = useRouter()
@@ -155,7 +156,7 @@ function PageContent() {
     if (shouldFetchFallback) refetchFallback()
   }
 
-  const slides = [
+  const slides: { id: number; image: string | StaticImageData; title: string; description: string; link: string }[] = [
     {
       id: 1,
       image: phone,
@@ -178,6 +179,10 @@ function PageContent() {
       link: '/products?category=groceries',
     },
   ]
+
+  const resolveImageSrc = React.useCallback((image: string | StaticImageData) => {
+    return typeof image === 'string' ? image : image.src
+  }, [])
 
   const sliderSettings = {
     dots: true,
@@ -202,7 +207,7 @@ function PageContent() {
           {slides.map(slide => (
             <div key={slide.id} className="relative h-[60vh] md:h-[90vh] w-full outline-none">
               <img
-                src={slide.image?.src || slide.image}
+                src={resolveImageSrc(slide.image)}
                 className="absolute inset-0 h-full w-full object-cover transform scale-105 transition-transform duration-[1200ms] ease-out"
                 alt={slide.title}
               />
@@ -374,7 +379,7 @@ function PageContent() {
         >
           <motion.div variants={slideInLeft} className="relative group rounded-3xl overflow-hidden shadow-2xl max-h-[400px] lg:max-h-[450px] w-full max-w-xl mx-auto">
             <img
-              src={delivery?.src || delivery}
+              src={resolveImageSrc(delivery)}
               className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
               alt="Fast Delivery"
             />
