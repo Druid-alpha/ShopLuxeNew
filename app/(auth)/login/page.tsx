@@ -74,7 +74,7 @@ function PageContent() {
 
       if (guestCart.length > 0) {
         try {
-          const mergedCart = await syncCart(guestCart)
+          const mergedCart = await syncCart(guestCart as any)
           dispatch(setCart(mergedCart))
           dispatch(clearCart())
         } catch (err) {
