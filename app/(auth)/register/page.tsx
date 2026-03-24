@@ -93,7 +93,7 @@ function PageContent() {
     }
 
     try {
-      await registerApi(formData).unwrap()
+      await registerApi(formData as any).unwrap()
       toast({ title: "Registration successful" })
       router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
     } catch (err) {
