@@ -659,7 +659,13 @@ function PageContent() {
               {(() => {
                 const productMap = new Map()
                 sortedCart.forEach(item => {
-                  const productId = item.productId || item.product?._id || item.product
+                  const productId = item.productId || (
+                    typeof item.product === "object" &&
+                    item.product !== null &&
+                    "_id" in item.product
+                      ? (item.product as { _id?: string })._id
+                      : (typeof item.product === "string" ? item.product : null)
+                  )
                   if (!productId || productMap.has(productId)) return
                   const stock = Number(item.productTotalStock ?? item.productStock ?? 0)
                   const reserved = Number(item.productTotalReserved ?? item.productReserved ?? 0)
@@ -762,6 +768,7 @@ export default function Page() {
   </PageTransition>
   );
 }
+
 
 
 
