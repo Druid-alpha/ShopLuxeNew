@@ -526,8 +526,12 @@ function PageContent() {
           : {
               _id: nextVariant._id,
               sku: nextVariant.sku,
-              size: nextVariant.size,
-              color: nextVariant.colorName
+              options: {
+                size: nextVariant.size || "",
+                color: nextVariant.colorName
+                  ? { name: nextVariant.colorName, hex: nextVariant.colorHex ?? undefined }
+                  : (nextVariant.colorHex ? { hex: nextVariant.colorHex } : undefined)
+              }
             },
         nextMeta
       }))
@@ -758,6 +762,7 @@ export default function Page() {
   </PageTransition>
   );
 }
+
 
 
 
