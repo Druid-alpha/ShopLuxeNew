@@ -1,0 +1,430 @@
+﻿"use client"
+
+import PageTransition from "@/components/PageTransition";
+
+import React from 'react'
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Slider from 'react-slick'
+import { ArrowRight, Truck, ShieldCheck, Clock } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+
+import { useGetFeaturedProductsQuery, useGetProductsQuery } from '@/features/products/productApi'
+import ProductCard from '@/features/products/ProductCard'
+import { Button } from '@/components/ui/button'
+import FeaturedReviews from '@/components/FeaturedReviews'
+import RecentlyViewed from '@/components/RecentlyViewed'
+
+import home from '@/assets/women.jpg'
+import grocery from '@/assets/grocery.jpg'
+import phone from '@/assets/phone.jpg'
+import delivery from '@/assets/delivery.jpg'
+
+function PageContent() {
+  const router = useRouter()
+  const prefersReducedMotion = useReducedMotion()
+  const [isMobile, setIsMobile] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const media = window.matchMedia('(max-width: 768px)')
+    const sync = () => setIsMobile(media.matches)
+    sync()
+    if (media.addEventListener) {
+      media.addEventListener('change', sync)
+      return () => media.removeEventListener('change', sync)
+    }
+    media.addListener(sync)
+    return () => media.removeListener(sync)
+  }, [])
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const reduceMotion = prefersReducedMotion || isMobile
+
+  // --- Animation Variants (lighter on mobile) ---
+  const staggerContainer = React.useMemo(() => ({
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: reduceMotion ? 0.05 : 0.15 }
+    }
+  }), [reduceMotion])
+
+  const fadeUp = React.useMemo(() => ({
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 30 },
+    show: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: "easeOut" } }
+  }), [reduceMotion])
+
+  const scaleIn = React.useMemo(() => ({
+    hidden: { opacity: 0, scale: reduceMotion ? 1 : 0.9 },
+    show: { opacity: 1, scale: 1, transition: { duration: reduceMotion ? 0.2 : 0.5, ease: "easeOut" } }
+  }), [reduceMotion])
+
+  const slideInLeft = React.useMemo(() => ({
+    hidden: { opacity: 0, x: reduceMotion ? 0 : -50 },
+    show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: "easeOut" } }
+  }), [reduceMotion])
+
+  const slideInRight = React.useMemo(() => ({
+    hidden: { opacity: 0, x: reduceMotion ? 0 : 50 },
+    show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: "easeOut" } }
+  }), [reduceMotion])
+
+  const motionViewport = reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-100px" }
+  const [stableFeaturedProducts, setStableFeaturedProducts] = React.useState([])
+  const {
+    data: featuredData,
+    isLoading: isFeaturedLoading,
+    isFetching: isFeaturedFetching,
+    isError: isFeaturedError,
+    refetch: refetchFeatured
+  } = useGetFeaturedProductsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+    refetchOnReconnect: true
+  })
+
+  const shouldFetchFallback =
+    !isFeaturedLoading &&
+    !isFeaturedFetching &&
+    (isFeaturedError || (featuredData?.products || []).length === 0)
+
+  const {
+    data: fallbackData,
+    isLoading: isFallbackLoading,
+    isFetching: isFallbackFetching,
+    isError: isFallbackError,
+    refetch: refetchFallback
+  } = useGetProductsQuery(
+    { page: 1, limit: 12, sortBy: 'newest' },
+    {
+      skip: !shouldFetchFallback,
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+      refetchOnReconnect: true
+    }
+  )
+
+  const featuredProducts = (featuredData?.products || []).length > 0
+    ? (featuredData?.products || [])
+    : (fallbackData?.products || [])
+
+  React.useEffect(() => {
+    if (!mounted) return
+    try {
+      const cached = JSON.parse(localStorage.getItem('homeFeaturedProducts') || '[]')
+      if (Array.isArray(cached) && cached.length > 0) {
+        setStableFeaturedProducts(cached)
+      }
+    } catch {
+      // ignore
+    }
+  }, [mounted])
+
+  React.useEffect(() => {
+    if (featuredProducts.length > 0) {
+      setStableFeaturedProducts(featuredProducts)
+      if (mounted) {
+        localStorage.setItem('homeFeaturedProducts', JSON.stringify(featuredProducts))
+      }
+    }
+  }, [featuredProducts, mounted])
+
+  const displayedFeaturedProducts =
+    featuredProducts.length > 0
+      ? featuredProducts
+      : stableFeaturedProducts
+
+  const isLoading = isFeaturedLoading || (shouldFetchFallback && isFallbackLoading)
+  const isFetching = isFeaturedFetching || (shouldFetchFallback && isFallbackFetching)
+  const isError = shouldFetchFallback ? isFallbackError : false
+  const showSkeleton = !mounted || ((isLoading || isFetching) && displayedFeaturedProducts.length === 0)
+
+  const handleRefetch = () => {
+    refetchFeatured()
+    if (shouldFetchFallback) refetchFallback()
+  }
+
+  const slides = [
+    {
+      id: 1,
+      image: phone,
+      title: 'Next-Gen Electronics',
+      description: 'Discover the latest technology designed to elevate your everyday life.',
+      link: '/products?category=electronics',
+    },
+    {
+      id: 2,
+      image: home,
+      title: 'Elevate Your Style',
+      description: 'Explore curated fashion pieces that make a statement wherever you go.',
+      link: '/products?category=clothing',
+    },
+    {
+      id: 3,
+      image: grocery,
+      title: 'Freshness Delivered',
+      description: 'Premium quality groceries brought straight to your doorstep.',
+      link: '/products?category=groceries',
+    },
+  ]
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 1200,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    fade: true,
+    cssEase: 'ease-in-out',
+    pauseOnHover: false,
+    waitForAnimate: true,
+  }
+
+  return (
+    <div className="w-full">
+      {/* HERO SECTION */}
+      <section className="relative w-full overflow-hidden bg-slate-950">
+        <Slider {...sliderSettings} className="h-[60vh] md:h-[90vh] w-full">
+          {slides.map(slide => (
+            <div key={slide.id} className="relative h-[60vh] md:h-[90vh] w-full outline-none">
+              <img
+                src={slide.image?.src || slide.image}
+                className="absolute inset-0 h-full w-full object-cover transform scale-105 transition-transform duration-[1200ms] ease-out"
+                alt={slide.title}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+
+              <div className="absolute inset-0 flex flex-col items-start justify-center text-white p-8 md:p-24">
+                <motion.div
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: reduceMotion ? 0.2 : 0.5 }}
+                  variants={staggerContainer}
+                  className="max-w-2xl"
+                >
+                  <motion.span variants={fadeUp} className="text-xs md:text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-4 block">
+                    Limited Edition
+                  </motion.span>
+                  <motion.h1 variants={fadeUp} className="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-none font-display">
+                    {slide.title.split(' ').map((word, i) => (
+                      <span key={i} className={i === 1 ? 'text-gray-400 block' : 'block'}>{word}</span>
+                    ))}
+                  </motion.h1>
+                  <motion.p variants={fadeUp} className="text-sm md:text-lg text-gray-300 mb-10 max-w-lg leading-relaxed font-medium">
+                    {slide.description}
+                  </motion.p>
+                  <motion.div variants={fadeUp}>
+                    <Button
+                      size="lg"
+                      className="bg-white text-black hover:bg-black hover:text-white transition-all duration-500 rounded-none px-12 py-7 text-sm font-bold uppercase tracking-widest"
+                      onClick={() => router.push(slide.link)}
+                    >
+                      Shop Now
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
+          ))}
+        </Slider>
+      </section>
+
+      {/* MAIN CONTAINER */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+
+        {/* SHOP BY CATEGORY */}
+        <motion.section
+          initial="hidden"
+          whileInView="show"
+          viewport={motionViewport}
+          variants={staggerContainer}
+          className="pb-10"
+        >
+          <motion.div variants={fadeUp} className="flex justify-between items-end mb-12 border-b pb-6">
+            <h2 className="text-2xl md:text-3xl font-black tracking-tighter uppercase font-display">Categories</h2>
+            <Link href="/products" className="text-xs font-bold uppercase tracking-widest border-b-2 border-black pb-1 hover:text-gray-500 hover:border-gray-500 transition-all">View All</Link>
+          </motion.div>
+
+          <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-2 md:gap-8 max-w-4xl mx-auto">
+            {[
+              { id: 'electronics', iconSrc: '/icons/electronics.svg', label: 'Electronics' },
+              { id: 'clothing', iconSrc: '/icons/clothing.svg', label: 'Clothing' },
+              { id: 'groceries', iconSrc: '/icons/groceries.svg', label: 'Groceries' }
+            ].map(cat => (
+              <motion.div key={cat.id} variants={scaleIn} className="flex flex-col items-center">
+                <div
+                  onClick={() => router.push(`/products?category=${cat.id}`)}
+                  className="group relative flex items-center justify-center w-full aspect-square rounded-full border transition-all duration-500 cursor-pointer overflow-hidden bg-gray-50 border-gray-100 hover:bg-black hover:border-black shadow-sm hover:shadow-xl"
+                >
+                  <img src={cat.iconSrc} alt={`${cat.label} icon`} className="h-6 w-6 md:h-12 md:w-12 transition-transform group-hover:scale-110 duration-500" loading="lazy" />
+                </div>
+                <span className="mt-4 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-gray-900">{cat.label}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* FEATURED PRODUCTS */}
+        <section>
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={motionViewport}
+            variants={fadeUp}
+            className="flex justify-between items-end mb-10"
+          >
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-display">Featured Products</h2>
+              <div className="h-1 w-20 bg-black mt-4 rounded-full"></div>
+            </div>
+            <Button variant="ghost" className="hidden md:flex font-semibold" onClick={() => router.push('/products')}>
+              View All <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-50px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4"
+          >
+            {showSkeleton
+              ? Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} className="animate-pulse border rounded-xl p-4 space-y-3">
+                  <div className="h-48 bg-gray-200 rounded-lg w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mt-4" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                </div>
+              ))
+              : displayedFeaturedProducts.map(product => (
+                <motion.div key={product._id} variants={fadeUp} className="h-full">
+                  <ProductCard product={product} />
+                </motion.div>
+              ))
+            }
+          </motion.div>
+          {!isLoading && !isFetching && isError && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500 mb-3">Could not load featured products.</p>
+              <Button variant="outline" onClick={handleRefetch}>Retry</Button>
+            </div>
+          )}
+          {!isLoading && !isFetching && !isError && displayedFeaturedProducts.length === 0 && (
+            <p className="mt-6 text-center text-sm text-gray-500">No featured products available right now.</p>
+          )}
+          <div className="mt-8 text-center md:hidden">
+            <Button variant="outline" className="w-full" onClick={() => router.push('/products')}>
+              View All Products
+            </Button>
+          </div>
+        </section>
+
+        {/* RECENTLY VIEWED */}
+        <RecentlyViewed title="Recently Viewed" />
+
+        {/* VALUE PROPOSITION GRID */}
+        <section className="py-12 border-t border-b border-gray-100">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-48px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
+          >
+            {[
+              { icon: Truck, title: 'Free Shipping', desc: 'On all orders over NGN 50,000' },
+              { icon: ShieldCheck, title: 'Secure Checkout', desc: '100% protected payments' },
+              { icon: Clock, title: '24/7 Support', desc: 'Dedicated friendly assistance' }
+            ].map((feature, i) => (
+              <motion.div key={i} variants={fadeUp} className="flex flex-col items-center">
+                <div className="bg-gray-100 p-4 rounded-full mb-4">
+                  <feature.icon className="h-8 w-8 text-black" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-gray-500">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* FEATURED REVIEWS - Shopify Style */}
+        <FeaturedReviews />
+
+        {/* PROMO SPLIT SECTION */}
+        <motion.section
+          initial="hidden"
+          whileInView="show"
+          viewport={motionViewport}
+          className="grid md:grid-cols-2 gap-12 items-center mb-24 overflow-hidden"
+        >
+          <motion.div variants={slideInLeft} className="relative group rounded-3xl overflow-hidden shadow-2xl max-h-[400px] lg:max-h-[450px] w-full max-w-xl mx-auto">
+            <img
+              src={delivery?.src || delivery}
+              className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+              alt="Fast Delivery"
+            />
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
+          </motion.div>
+
+          <motion.div variants={slideInRight} className="space-y-6 md:pl-8">
+            <span className="text-sm font-bold tracking-widest text-gray-500 uppercase">Premium Service</span>
+            <h2 className="text-4xl lg:text-5xl font-extrabold leading-tight font-display">
+              Fast, Reliable & <br />
+              <span className="text-gray-400">Secure Delivery.</span>
+            </h2>
+            <p className="text-lg text-gray-600 leading-relaxed max-w-md">
+              Shop with absolute confidence knowing your luxury orders are handled with care and arrive right to your doorstep, exactly when you need them.
+            </p>
+            <div className="pt-4">
+              <Button size="lg" className="bg-black text-white hover:bg-gray-800 text-lg px-8 py-6 rounded-xl font-medium shadow-lg" onClick={() => router.push('/products')}>
+                Start Exploring
+              </Button>
+            </div>
+          </motion.div>
+        </motion.section>
+
+      </div>
+    </div>
+  )
+}
+
+
+
+
+
+
+
+export default function Page() {
+  return (<PageTransition>
+    <PageContent />
+    <section className="mx-auto max-w-6xl px-6 pb-12">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Learning</p>
+        <h2 className="mt-2 text-xl font-black text-slate-900">Explore Next.js Concepts</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          We wired every major Next.js concept into real pages. Use the checklist to explore.
+        </p>
+        <div className="mt-4">
+          <a
+            href="/next-concepts"
+            className="inline-flex rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white"
+          >
+            Open checklist
+          </a>
+        </div>
+      </div>
+    </section>
+  </PageTransition>
+  );
+}
+
+
