@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLoginMutation } from "@/features/auth/authApi"
 import { useToast } from "@/hooks/use-toast"
-import { useAppDispatch } from "@/store/hooks"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { setUser, setToken } from "@/features/auth/authSlice"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -28,7 +28,7 @@ function PageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dispatch = useAppDispatch()
-  const guestCart = useSelector((state) => state.cart.items)
+  const guestCart = useAppSelector((state) => state.cart.items)
   const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const passwordTimerRef = useRef(null)
