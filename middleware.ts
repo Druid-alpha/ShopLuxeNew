@@ -47,11 +47,20 @@ export function middleware(request: NextRequest) {
       const exp = Number(payload?.exp || 0);
       const isExpired = exp ? Date.now() / 1000 >= exp : false;
 
-      if (isExpired || role !== "admin") {
+      if (isExpired) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = "/login";
         loginUrl.search = `?returnTo=${encodeURIComponent(`${pathname}${search}`)}&reason=admin`;
         return NextResponse.redirect(loginUrl);
+      }
+
+      // If role is present and not admin, redirect. If role is missing, let client
+      // ProtectedRoute handle it to avoid false negatives.
+      if (role && role !== "admin") {
+        const homeUrl = request.nextUrl.clone();
+        homeUrl.pathname = "/profile";
+        homeUrl.search = "";
+        return NextResponse.redirect(homeUrl);
       }
     }
 

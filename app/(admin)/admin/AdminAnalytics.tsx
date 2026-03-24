@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
+import { apiUrl } from "@/lib/apiBase";
 import {
   Area,
   AreaChart,
@@ -61,11 +62,10 @@ export default function AdminAnalytics() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         };
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
         const [usersRes, ordersRes, productsRes] = await Promise.all([
-          fetch(`${baseUrl}/admin/users`, { headers, credentials: "include" }),
-          fetch(`${baseUrl}/orders`, { headers, credentials: "include" }),
-          fetch(`${baseUrl}/products?limit=1000`, { headers }),
+          fetch(apiUrl("/admin/users"), { headers, credentials: "include" }),
+          fetch(apiUrl("/orders"), { headers, credentials: "include" }),
+          fetch(apiUrl("/products?limit=1000"), { headers }),
         ]);
         const [usersData, ordersData, productsData] = await Promise.all([
           usersRes.json(),

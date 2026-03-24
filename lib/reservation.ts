@@ -1,3 +1,5 @@
+import { apiUrl } from "@/lib/apiBase";
+
 export const getStoredReservation = () => {
   try {
     const raw = window.localStorage.getItem('shopluxe_reservation')
@@ -21,7 +23,7 @@ export const releaseReservation = async ({ token }: { token?: string } = {}) => 
   const stored = getStoredReservation()
   if (!stored?.orderId) return
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${stored.orderId}`, {
+    await fetch(apiUrl(`/orders/${stored.orderId}`), {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -35,7 +37,7 @@ export const releaseReservation = async ({ token }: { token?: string } = {}) => 
 
 export const cancelAllReservations = async ({ token }: { token?: string } = {}) => {
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/cancel-reservations`, {
+    await fetch(apiUrl("/orders/cancel-reservations"), {
       method: 'POST',
       credentials: 'include',
       headers: {

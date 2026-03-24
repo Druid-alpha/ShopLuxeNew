@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useAppSelector } from '@/store/hooks'
 import { Button } from '@/components/ui/button'
 import { RefreshCcw } from 'lucide-react'
+import { apiUrl } from '@/lib/apiBase'
 
 const POLLING_INTERVAL = 15000
 
@@ -32,7 +33,7 @@ function PageContent() {
     else setLoading(true)
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users?sortBy=created-1&sort=created-1`, {
+      const res = await fetch(apiUrl('/admin/users?sortBy=created-1&sort=created-1'), {
         credentials: 'include', // important!
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -74,7 +75,7 @@ function PageContent() {
   // Promote / Demote
   const handleRoleChange = async (userId, newRole) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${userId}`, {
+      const res = await fetch(apiUrl(`/admin/users/${userId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +97,7 @@ function PageContent() {
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${userId}`, {
+      const res = await fetch(apiUrl(`/admin/users/${userId}`), {
         method: 'DELETE',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})

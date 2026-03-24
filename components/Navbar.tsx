@@ -159,12 +159,6 @@ export default function Navbar() {
           >
             Collections
           </Link>
-          <Link
-            href="/next-concepts"
-            className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-black ${pathname.startsWith('/next-concepts') ? 'text-black border-b-2 border-black' : 'text-gray-400'}`}
-          >
-            Learn
-          </Link>
 
           <Link href="/wishlist" className="relative text-gray-400 hover:text-black transition-colors">
             <Heart size={20} />
@@ -332,10 +326,6 @@ export default function Navbar() {
 
               <Link href="/products" className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors group">
                 <span className="text-sm font-black uppercase tracking-tight">All Collections</span>
-                <ArrowRight size={16} className="text-gray-300 group-hover:text-black transition-colors" />
-              </Link>
-              <Link href="/next-concepts" className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors group">
-                <span className="text-sm font-black uppercase tracking-tight">Next Concepts</span>
                 <ArrowRight size={16} className="text-gray-300 group-hover:text-black transition-colors" />
               </Link>
 

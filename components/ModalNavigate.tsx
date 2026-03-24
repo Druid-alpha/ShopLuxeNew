@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   href: string;
@@ -9,9 +10,12 @@ type Props = {
 };
 
 export default function ModalNavigate({ href, className, children }: Props) {
+  const router = useRouter();
+
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    window.location.href = href;
+    event.stopPropagation();
+    router.push(href);
   };
 
   return (

@@ -15,6 +15,7 @@ import { LayoutDashboard, Package, ShoppingBag, Users, MessageSquare } from 'luc
 import { useGetAllOrdersQuery } from '@/features/orders/orderApi'
 import { useAppSelector } from '@/store/hooks'
 import { useToast } from '@/hooks/use-toast'
+import { apiUrl } from '@/lib/apiBase'
 
 function PageContent() {
   const [tab, setTab] = useState('products')
@@ -64,7 +65,7 @@ function PageContent() {
 
   const fetchUsersForNotifications = useCallback(async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users?sortBy=created-1&sort=created-1`, {
+      const res = await fetch(apiUrl('/admin/users?sortBy=created-1&sort=created-1'), {
         credentials: 'include',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})

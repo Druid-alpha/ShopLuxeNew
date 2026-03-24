@@ -21,6 +21,7 @@ import { Heart, Truck, ShieldCheck, RefreshCw, Clock } from 'lucide-react'
 import PriceDisplay from '@/components/PriceDisplay'
 import ReviewSummary from './ReviewSummary'
 import { cancelAllReservations, clearReservationStorage } from '@/lib/reservation'
+import { apiUrl } from '@/lib/apiBase'
 
 
 const getImageUrl = (img) => {
@@ -670,7 +671,7 @@ export default function ProductDetails() {
     if (reservationExpiresAt) return
     const syncReservation = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/pending-reservation`, {
+        const res = await fetch(apiUrl("/orders/pending-reservation"), {
           method: 'GET',
           credentials: 'include',
           headers: {
