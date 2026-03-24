@@ -288,6 +288,17 @@ function PageContent() {
     }
   }
 
+  const handleAttachmentChange = (e) => {
+    if (!order?._id) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    const previews = files.slice(0, 5).map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }))
+    setReturnFiles(previews)
+  }
+
   if (queryError) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center space-y-4">
       <div className="bg-red-50 p-4 rounded-full text-red-500"><LogOut size={32} /></div>
@@ -661,21 +672,6 @@ function PageContent() {
     </div>
   )
 }
-  const handleAttachmentChange = (e) => {
-    if (!order?._id) return
-    const files = Array.from(e.target.files || [])
-    if (files.length === 0) return
-    const previews = files.slice(0, 5).map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file)
-    }))
-    setReturnFiles(previews)
-  }
-
-
-
-
-
 export default function Page() {
   return (<ProtectedRoute roles={["user", "admin"]}><PageTransition>
     <PageContent />
