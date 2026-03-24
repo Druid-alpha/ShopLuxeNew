@@ -513,11 +513,16 @@ function PageContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-gray-900 line-clamp-2">{item.title}</p>
-                    {(item.variantLabel || typeof item.variant === 'string') && (
-                      <p className="text-gray-400 text-xs uppercase mt-0.5">
-                        {item.variantLabel || (typeof item.variant === 'string' ? item.variant : '')}
-                      </p>
-                    )}
+                    {(() => {
+                      const variantLabel =
+                        typeof item.variantLabel === "string"
+                          ? item.variantLabel
+                          : (item.variantLabel != null ? String(item.variantLabel) : "");
+                      const variantText = variantLabel || (typeof item.variant === "string" ? item.variant : "");
+                      return variantText ? (
+                        <p className="text-gray-400 text-xs uppercase mt-0.5">{variantText}</p>
+                      ) : null;
+                    })()}
                     <p className="text-gray-500 text-xs mt-1">Qty: {item.qty}</p>
                   </div>
                   <div className="font-semibold text-sm text-gray-900 whitespace-nowrap">
@@ -601,5 +606,6 @@ export default function Page() {
   </PageTransition></ProtectedRoute>
   );
 }
+
 
 
