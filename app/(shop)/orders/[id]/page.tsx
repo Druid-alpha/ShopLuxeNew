@@ -290,7 +290,7 @@ function PageContent() {
 
   const handleAttachmentChange = (e) => {
     if (!order?._id) return
-    const files = Array.from(e.target.files || [])
+    const files = Array.from(e.target.files || []) as File[]
     if (files.length === 0) return
     const previews = files.slice(0, 5).map((file) => ({
       file,
