@@ -23,7 +23,7 @@ function PageContent() {
   const [countdown, setCountdown] = useState(60)
   const [resendAttempts, setResendAttempts] = useState(0)
   const maxAttempts = 3
-  const inputRefs = useRef([])
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([])
 
   const [verify, { isLoading: isVerifying }] = useVerifyMutation()
   const [resendOtp, { isLoading: isResending }] = useResendOtpMutation()
@@ -192,7 +192,9 @@ function PageContent() {
                 {otpDigits.map((digit, index) => (
                   <Input
                     key={`otp-${index}`}
-                    ref={(el) => (inputRefs.current[index] = el)}
+                    ref={(el) => {
+                      inputRefs.current[index] = el
+                    }}
                     value={digit}
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
