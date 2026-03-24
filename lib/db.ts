@@ -2,10 +2,6 @@ import mongoose from "mongoose";
 
 const MONGO_URI = process.env.MONGO_URI;
 
-if (!MONGO_URI) {
-  throw new Error("MONGO_URI is not set in environment variables.");
-}
-
 type MongooseCache = {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -24,6 +20,9 @@ const cached: MongooseCache = global.mongooseCache || {
 global.mongooseCache = cached;
 
 export async function connectDB() {
+  if (!MONGO_URI) {
+    throw new Error("MONGO_URI is not set in environment variables.");
+  }
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
