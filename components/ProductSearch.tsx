@@ -3,7 +3,7 @@ import React from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 
-export default function ProductSearch({ search, setSearch, onSearch, suggestions = [], onSuggestion }) {
+export default function ProductSearch({ search, setSearch, onSearch = undefined, suggestions = [], onSuggestion = undefined }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
