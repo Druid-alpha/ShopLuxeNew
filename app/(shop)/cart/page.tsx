@@ -494,7 +494,7 @@ function PageContent() {
     if (updatingItems[updatingKey]) return
     setUpdatingItems(prev => ({ ...prev, [updatingKey]: true }))
 
-    const nextMeta = isBaseSelection
+    const nextMetaBase = isBaseSelection
       ? {
         size: '',
         colorName: '',
@@ -513,10 +513,12 @@ function PageContent() {
         basePrice: Number(nextVariant.price ?? item.basePrice ?? 0),
         discount: Number(nextVariant.discount ?? item.discount ?? 0)
       }
-    const finalPrice = nextMeta.discount > 0
-      ? Math.round(nextMeta.basePrice * (1 - nextMeta.discount / 100))
-      : nextMeta.basePrice
-    const nextMeta = { ...nextMetaBase, finalPrice }if (!user) {
+    const finalPrice = nextMetaBase.discount > 0
+      ? Math.round(nextMetaBase.basePrice * (1 - nextMetaBase.discount / 100))
+      : nextMetaBase.basePrice
+    const nextMeta = { ...nextMetaBase, finalPrice }
+
+    if (!user) {
       dispatch(updateGuestCartVariant({
         key: item.key,
         nextVariant: isBaseSelection
@@ -756,5 +758,6 @@ export default function Page() {
   </PageTransition>
   );
 }
+
 
 
