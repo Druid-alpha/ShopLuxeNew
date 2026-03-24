@@ -135,10 +135,10 @@ function PageContent() {
       toast({ title: "OTP resent successfully" })
       setCanResend(false)
       setResendAttempts((prev) => prev + 1)
-      const waitSeconds = Number(res?.retryAfterSeconds || 60)
+      const waitSeconds = Number((res as any)?.retryAfterSeconds || 60)
       setCountdown(waitSeconds)
     } catch (err) {
-      const waitSeconds = Number(err?.data?.retryAfterSeconds || 60)
+      const waitSeconds = Number((err as any)?.data?.retryAfterSeconds || 60)
       setCountdown(waitSeconds)
       setCanResend(false)
       toast({
