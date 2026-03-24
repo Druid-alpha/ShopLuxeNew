@@ -6,6 +6,10 @@ import "@/lib/db/models/Color";
 import Product from "@/lib/db/models/product";
 
 async function fetchFeaturedProducts() {
+  if (!process.env.MONGO_URI) {
+    // Allow builds to succeed without DB; page will render empty until runtime env is set.
+    return [];
+  }
   await connectDB();
   const products = await Product.find({ isDeleted: false, featured: true })
     .populate("brand category variants.options.color color")
