@@ -62,9 +62,9 @@ function PageContent() {
     }
     tag.setAttribute('content', content)
   }, [])
-  const buildPageItems = React.useCallback((current, total) => {
+  const buildPageItems = React.useCallback((current, total): Array<number | '...'> => {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-    const items = [1]
+    const items: Array<number | '...'> = [1]
     const start = Math.max(2, current - 1)
     const end = Math.min(total - 1, current + 1)
     if (start > 2) items.push('...')
