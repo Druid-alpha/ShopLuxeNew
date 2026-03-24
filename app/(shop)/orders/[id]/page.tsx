@@ -292,7 +292,7 @@ function PageContent() {
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center space-y-4">
       <div className="bg-red-50 p-4 rounded-full text-red-500"><LogOut size={32} /></div>
       <h2 className="text-xl font-bold">Failed to load order</h2>
-      <p className="text-gray-500 max-w-xs">{queryError?.data?.message || 'Access denied or network error'}</p>
+      <p className="text-gray-500 max-w-xs">{('data' in (queryError as any) && (queryError as any).data?.message) || 'Access denied or network error'}</p>
       <Button onClick={() => router.push('/')}>Back to Shop</Button>
     </div>
   )
@@ -682,6 +682,7 @@ export default function Page() {
   </PageTransition></ProtectedRoute>
   );
 }
+
 
 
 
