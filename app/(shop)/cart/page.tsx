@@ -244,7 +244,7 @@ function PageContent() {
   const cart = useAppSelector(state => state.cart.items);
   const user = useAppSelector(state => state.auth.user)
   const token = useAppSelector(state => state.auth.token)
-  const sortedCart = [...cart].sort((a, b) => new Date(b.addedAt || 0) - new Date(a.addedAt || 0))
+  const sortedCart = [...cart].sort((a, b) => new Date(b.addedAt || 0).getTime() - new Date(a.addedAt || 0).getTime())
 
   const dispatch = useAppDispatch();
   const router = useRouter();
