@@ -516,9 +516,7 @@ function PageContent() {
     const finalPrice = nextMeta.discount > 0
       ? Math.round(nextMeta.basePrice * (1 - nextMeta.discount / 100))
       : nextMeta.basePrice
-    nextMeta.finalPrice = finalPrice
-
-    if (!user) {
+    const nextMeta = { ...nextMetaBase, finalPrice }if (!user) {
       dispatch(updateGuestCartVariant({
         key: item.key,
         nextVariant: isBaseSelection
@@ -758,4 +756,5 @@ export default function Page() {
   </PageTransition>
   );
 }
+
 
