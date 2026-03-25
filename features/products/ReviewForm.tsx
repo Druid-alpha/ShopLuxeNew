@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAddReviewMutation } from './productApi'
 import { useToast } from '@/hooks/use-toast'
@@ -58,7 +59,7 @@ export default function ReviewForm({ productId, onSuccess, user }) {
               onMouseEnter={() => setHover(star)}
               onMouseLeave={() => setHover(0)}
             >
-              ?
+              <Star className={hover >= star || rating >= star ? 'fill-current' : ''} size={20} />
             </button>
           ))}
         </div>

@@ -72,6 +72,7 @@ export default function ProductCard({ product }) {
   const isReservedHigh = totalStock > 0
     && totalReserved >= Math.ceil(totalStock * 0.7)
     && availableStock < 5
+  const compareTopClass = maxDiscount > 0 ? 'top-14 sm:top-14' : 'top-12 sm:top-4'
   const discountedPrice = maxDiscount > 0
     ? Math.round((product?.price || 0) * (1 - maxDiscount / 100))
     : (product?.price || 0)
@@ -262,7 +263,7 @@ export default function ProductCard({ product }) {
         </button>
       </div>
 
-      <div className="absolute top-12 left-4 sm:top-4 z-10">
+      <div className={`absolute left-4 z-10 ${compareTopClass}`}>
         <button
           onClick={handleCompare}
           className={`p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm transition-all duration-300 ${isCompared ? 'text-black' : 'text-gray-400 hover:text-black'}`}

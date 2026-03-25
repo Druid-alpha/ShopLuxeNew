@@ -49,6 +49,7 @@ function PageContent() {
   const [saleOnly, setSaleOnly] = React.useState(
     ['1', 'true', 'yes'].includes(String(searchParams.get('sale') || '').toLowerCase())
   )
+  const [suggestions, setSuggestions] = React.useState<string[]>([])
   const [mobileFilters, setMobileFilters] = React.useState(false)
   const [isResolvingCategory, setIsResolvingCategory] = React.useState(false)
   const skipNextUrlSyncRef = React.useRef(false)
@@ -135,6 +136,33 @@ function PageContent() {
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 500)
     return () => clearTimeout(timer)
+  }, [search])
+
+  React.useEffect(() => {
+    const term = search.trim()
+    if (term.length < 2) {
+      setSuggestions([])
+      return
+    }
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      try {
+        const res = await axios.get('/products', { params: { search: term, limit: 6 } })
+        const list = Array.isArray(res?.data?.products) ? res.data.products : []
+        const titles = list
+          .map((p) => String(p?.title || '').trim())
+          .filter(Boolean)
+        const unique = Array.from(new Set(titles)).slice(0, 6)
+        if (!cancelled) setSuggestions(unique)
+      } catch {
+        if (!cancelled) setSuggestions([])
+      } finally {
+      }
+    }, 250)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
   }, [search])
 
   // ---------------- Reset dependent filters ----------------
@@ -254,7 +282,13 @@ function PageContent() {
           <ProductSearch
             search={search}
             setSearch={setSearch}
-            suggestions={[]}
+            suggestions={suggestions}
+            onSuggestion={(value) => {
+              setSearch(value)
+              setDebouncedSearch(value)
+              setPage(1)
+              setSuggestions([])
+            }}
           />
         </div>
 

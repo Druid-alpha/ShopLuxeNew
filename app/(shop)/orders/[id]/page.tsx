@@ -145,7 +145,9 @@ function PageContent() {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent || '')
+    const ua = navigator.userAgent || ''
+    const isMobileDevice = /android|iphone|ipad|ipod/i.test(ua)
+    const isSafari = /safari/i.test(ua) && !/chrome|crios|android/i.test(ua)
     const downloadViaApi = async (url) => {
       const filename = opt.filename.endsWith('.pdf') ? opt.filename : `${opt.filename}.pdf`
       const res = await fetch(url, {
@@ -184,7 +186,7 @@ function PageContent() {
         title: 'Download started',
         description: 'Your invoice is being prepared.',
       })
-      if (isMobileDevice) {
+      if (isMobileDevice || isSafari) {
         await downloadViaNavigation(backendUrl)
       } else {
         await downloadViaApi(backendUrl)
@@ -200,7 +202,7 @@ function PageContent() {
           title: 'Download started',
           description: 'Your invoice is being prepared.',
         })
-        if (isMobileDevice) {
+        if (isMobileDevice || isSafari) {
           await downloadViaNavigation(backendUrl)
         } else {
           await downloadViaApi(backendUrl)

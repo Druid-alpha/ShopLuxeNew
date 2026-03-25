@@ -408,6 +408,12 @@ export const buildQueryFromSearchParams = async (
     });
   }
 
+  const featuredRaw = readQuery(searchParams, "featured");
+  const featured = ["1", "true", "yes"].includes(String(featuredRaw || "").toLowerCase());
+  if (featured) {
+    andConditions.push({ featured: true });
+  }
+
   if (andConditions.length > 0) q.$and = andConditions;
   return q;
 };

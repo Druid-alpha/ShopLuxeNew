@@ -15,6 +15,7 @@ import ProductCard from '@/features/products/ProductCard'
 import { Button } from '@/components/ui/button'
 import FeaturedReviews from '@/components/FeaturedReviews'
 import RecentlyViewed from '@/components/RecentlyViewed'
+import { useAppSelector } from '@/store/hooks'
 
 import home from '@/assets/women.jpg'
 import grocery from '@/assets/grocery.jpg'
@@ -77,7 +78,17 @@ function PageContent() {
   }), [reduceMotion])
 
   const motionViewport = reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-100px" }
-  const [stableFeaturedProducts, setStableFeaturedProducts] = React.useState([])
+  const user = useAppSelector((state) => state.auth.user)
+  const [stableFeaturedProducts, setStableFeaturedProducts] = React.useState(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const cached = JSON.parse(localStorage.getItem('homeFeaturedProducts') || '[]')
+      return Array.isArray(cached) ? cached : []
+    } catch {
+      return []
+    }
+  })
+  const [personalizedProducts, setPersonalizedProducts] = React.useState([])
   const {
     data: featuredData,
     isLoading: isFeaturedLoading,
@@ -122,18 +133,6 @@ function PageContent() {
     : fallbackProductsList
 
   React.useEffect(() => {
-    if (!mounted) return
-    try {
-      const cached = JSON.parse(localStorage.getItem('homeFeaturedProducts') || '[]')
-      if (Array.isArray(cached) && cached.length > 0) {
-        setStableFeaturedProducts(cached)
-      }
-    } catch {
-      // ignore
-    }
-  }, [mounted])
-
-  React.useEffect(() => {
     if (featuredProducts.length > 0) {
       setStableFeaturedProducts(featuredProducts)
       if (mounted) {
@@ -141,6 +140,17 @@ function PageContent() {
       }
     }
   }, [featuredProducts, mounted])
+
+  React.useEffect(() => {
+    if (!mounted) return
+    try {
+      const cached = JSON.parse(localStorage.getItem('recentlyViewedProducts') || '[]')
+      const list = Array.isArray(cached) ? cached.slice(0, 4) : []
+      setPersonalizedProducts(list)
+    } catch {
+      setPersonalizedProducts([])
+    }
+  }, [mounted])
 
   const displayedFeaturedProducts =
     featuredProducts.length > 0
@@ -150,7 +160,7 @@ function PageContent() {
   const isLoading = isFeaturedLoading || (shouldFetchFallback && isFallbackLoading)
   const isFetching = isFeaturedFetching || (shouldFetchFallback && isFallbackFetching)
   const isError = shouldFetchFallback ? isFallbackError : false
-  const showSkeleton = !mounted || ((isLoading || isFetching) && displayedFeaturedProducts.length === 0)
+  const showSkeleton = (isLoading || isFetching) && displayedFeaturedProducts.length === 0
 
   const handleRefetch = () => {
     refetchFeatured()
@@ -284,6 +294,37 @@ function PageContent() {
           </div>
         </motion.section>
 
+        {/* PERSONALIZED PICKS */}
+        {(user || personalizedProducts.length > 0) && (
+          <section className="mt-10">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={motionViewport}
+              variants={fadeUp}
+              className="flex justify-between items-end mb-8"
+            >
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">For You</p>
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-display">
+                  {user ? `Welcome back, ${user.name?.split(' ')[0] || 'Shopper'}` : 'Your Picks'}
+                </h2>
+                <p className="text-sm text-gray-500 mt-2">Hand-picked based on what you viewed recently.</p>
+              </div>
+              <Button variant="ghost" className="hidden md:flex font-semibold" onClick={() => router.push('/products')}>
+                Browse All <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </motion.div>
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+              {(personalizedProducts.length > 0 ? personalizedProducts : displayedFeaturedProducts.slice(0, 4)).map((product) => (
+                <motion.div key={product._id} variants={fadeUp} className="h-full">
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* FEATURED PRODUCTS */}
         <section>
           <motion.div
@@ -342,6 +383,52 @@ function PageContent() {
 
         {/* RECENTLY VIEWED */}
         <RecentlyViewed title="Recently Viewed" />
+
+        {/* EDITORIAL COLLECTIONS */}
+        <section className="py-12">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={motionViewport}
+            variants={fadeUp}
+            className="flex justify-between items-end mb-8"
+          >
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Collections</p>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-display">Editorial Picks</h2>
+              <p className="text-sm text-gray-500 mt-2">Curated drops with a distinct point of view.</p>
+            </div>
+          </motion.div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { title: 'Urban Essentials', subtitle: 'Minimal, monochrome, elevated', image: home, link: '/products?category=clothing' },
+              { title: 'Tech Forward', subtitle: 'New arrivals in electronics', image: phone, link: '/products?category=electronics' },
+              { title: 'Fresh Market', subtitle: 'Groceries with premium quality', image: grocery, link: '/products?category=groceries' },
+            ].map((card) => (
+              <motion.div key={card.title} variants={fadeUp}>
+                <div
+                  onClick={() => router.push(card.link)}
+                  className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm cursor-pointer"
+                >
+                  <img
+                    src={typeof card.image === 'string' ? card.image : card.image.src}
+                    alt={card.title}
+                    className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Collection</p>
+                    <h3 className="text-2xl font-bold mt-2">{card.title}</h3>
+                    <p className="text-sm text-white/80 mt-1">{card.subtitle}</p>
+                    <div className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                      Explore <ArrowRight className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
         {/* VALUE PROPOSITION GRID */}
         <section className="py-12 border-t border-b border-gray-100">

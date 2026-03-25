@@ -480,6 +480,22 @@ function PageContent() {
                           }`}>
                           {order.paymentStatus || 'pending'}
                         </span>
+                        <Select
+                          value={orderStatusOptions.includes(order.status) ? order.status : undefined}
+                          onValueChange={(val) => handleStatusUpdate(order._id, val)}
+                          disabled={isUpdating}
+                        >
+                          <SelectTrigger className="h-8 w-28 text-[9px] font-bold uppercase rounded-lg border-gray-200">
+                            <SelectValue placeholder={order.status || 'pending'} />
+                          </SelectTrigger>
+                          <SelectContent side="bottom">
+                            {orderStatusOptions.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         {order.returnStatus && order.returnStatus !== 'none' && (
                           <span className={`inline-flex items-center justify-center h-7 w-28 text-[9px] font-bold uppercase rounded-lg ${order.returnStatus === 'approved'
                             ? 'bg-emerald-100 text-emerald-700'

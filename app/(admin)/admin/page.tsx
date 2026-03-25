@@ -31,7 +31,12 @@ function PageContent() {
     refetchOnReconnect: true
   })
   const orders = data?.orders || []
+  const sortedOrders = React.useMemo(
+    () => [...orders].sort((a, b) => new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime()),
+    [orders]
+  )
   const returnRequestCount = orders.filter(o => o?.returnStatus === 'requested').length
+  const [soundEnabled, setSoundEnabled] = useState(false)
   const getLastSeen = (key) => {
     const value = localStorage.getItem(key)
     if (!value) return null
@@ -44,10 +49,14 @@ function PageContent() {
   }
 
   const playNotificationSound = useCallback((frequency = 880) => {
+    if (!soundEnabled) return
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext
       if (!AudioContext) return
       const ctx = new AudioContext()
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {})
+      }
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
       osc.type = 'sine'
@@ -61,7 +70,26 @@ function PageContent() {
     } catch (err) {
       // Audio might be blocked; ignore.
     }
+  }, [soundEnabled])
+
+  useEffect(() => {
+    const stored = localStorage.getItem('shopluxe_admin_sound')
+    setSoundEnabled(stored === '1')
   }, [])
+
+  const enableSound = async () => {
+    setSoundEnabled(true)
+    localStorage.setItem('shopluxe_admin_sound', '1')
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+      if (!AudioContext) return
+      const ctx = new AudioContext()
+      await ctx.resume()
+      ctx.close()
+    } catch {
+      // ignore
+    }
+  }
 
   const fetchUsersForNotifications = useCallback(async () => {
     try {
@@ -108,17 +136,17 @@ function PageContent() {
   useEffect(() => {
     const lastSeen = getLastSeen(lastSeenOrdersKey)
     if (!lastSeen) {
-      const latestOrder = orders[0]?.createdAt || new Date()
+      const latestOrder = sortedOrders[0]?.createdAt || new Date()
       setLastSeen(lastSeenOrdersKey, latestOrder)
       setNewOrdersCount(0)
       return
     }
-    const count = orders.filter(o => {
+    const count = sortedOrders.filter(o => {
       const createdAt = o?.createdAt ? new Date(o.createdAt) : null
       return createdAt && createdAt > lastSeen
     }).length
     setNewOrdersCount(count)
-  }, [orders])
+  }, [sortedOrders])
 
   const handleTabChange = (id) => {
     setTab(id)
@@ -139,7 +167,15 @@ function PageContent() {
           <h1 className='text-2xl font-black tracking-tighter uppercase font-display'>Admin Dashboard</h1>
           <p className='text-xs font-bold uppercase tracking-widest text-gray-400 mt-1'>Manage products, orders, and customers</p>
         </div>
-        
+        {!soundEnabled && (
+          <Button
+            variant="outline"
+            className="rounded-full text-[10px] font-black uppercase tracking-widest"
+            onClick={enableSound}
+          >
+            Enable Alerts
+          </Button>
+        )}
       </div>
       <div className='flex flex-wrap gap-2 mb-8 bg-gray-50 p-2 rounded-2xl w-fit'>
         {[

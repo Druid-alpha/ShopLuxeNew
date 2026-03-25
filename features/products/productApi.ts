@@ -34,6 +34,7 @@ export const productApi = api.injectEndpoints({
         availability,
         sortBy,
         onSale,
+        featured,
       } = {}) => {
         const values = typeof availability === "string"
           ? availability.split(",").map((v) => v.trim()).filter(Boolean)
@@ -63,6 +64,7 @@ export const productApi = api.injectEndpoints({
           inStock,
           sortBy,
           onSale,
+          featured,
         }),
       }
       },
