@@ -32,7 +32,8 @@ const buildProductVariants = (product) => {
   }))
 }
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, variant = 'default' }) {
+  const isCompact = variant === 'compact'
   const dispatch = useAppDispatch()
   const { toast } = useToast()
   const router = useRouter()
@@ -248,56 +249,60 @@ export default function ProductCard({ product }) {
   if (!product) return null
 
   return (
-    <div className="group relative bg-white border border-gray-100 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full">
+    <div className={`group relative bg-white border border-gray-100 rounded-xl overflow-hidden transition-all duration-300 flex flex-col h-full ${isCompact ? 'shadow-sm' : 'hover:shadow-xl hover:-translate-y-1'}`}>
       {/* WISHLIST BUTTON */}
-      <div className="absolute top-4 right-4 z-10">
-        <button
-          onClick={handleWishlist}
-          className={`relative p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm transition-all duration-300 ${isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-black'
-            }`}
-        >
-          <Heart size={18} className={isWishlisted ? 'fill-current' : ''} />
-          {wishlistLoading && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-black/80 animate-pulse" />
-          )}
-        </button>
-      </div>
+      {!isCompact && (
+        <div className="absolute top-4 right-4 z-10">
+          <button
+            onClick={handleWishlist}
+            className={`relative p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm transition-all duration-300 ${isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-black'
+              }`}
+          >
+            <Heart size={18} className={isWishlisted ? 'fill-current' : ''} />
+            {wishlistLoading && (
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-black/80 animate-pulse" />
+            )}
+          </button>
+        </div>
+      )}
 
-      <div className={`absolute left-4 z-10 ${compareTopClass}`}>
-        <button
-          onClick={handleCompare}
-          className={`p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm transition-all duration-300 ${isCompared ? 'text-black' : 'text-gray-400 hover:text-black'}`}
-          title={isCompared ? 'Remove from compare' : 'Compare'}
-        >
-          <Scale size={16} className={isCompared ? 'fill-current' : ''} />
-        </button>
-      </div>
+      {!isCompact && (
+        <div className={`absolute left-4 z-10 ${compareTopClass}`}>
+          <button
+            onClick={handleCompare}
+            className={`p-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm transition-all duration-300 ${isCompared ? 'text-black' : 'text-gray-400 hover:text-black'}`}
+            title={isCompared ? 'Remove from compare' : 'Compare'}
+          >
+            <Scale size={16} className={isCompared ? 'fill-current' : ''} />
+          </button>
+        </div>
+      )}
 
       {/* PRODUCT IMAGE */}
-      <Link href={`/products/${product._id}`} className="block relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden bg-gradient-to-br from-slate-50 via-white to-amber-50 flex items-center justify-center">
+      <Link href={`/products/${product._id}`} className={`block relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-amber-50 flex items-center justify-center ${isCompact ? 'aspect-[4/5]' : 'aspect-[4/5] sm:aspect-[4/3]'}`}>
         {/* SALE BADGE */}
-        {maxDiscount > 0 && (
+        {!isCompact && maxDiscount > 0 && (
           <div className="absolute top-4 left-4 z-10">
             <span className="inline-flex items-center bg-white text-gray-900 text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-md border border-gray-100 sm:px-3 sm:py-1.5 sm:text-[9px] px-2 py-1 text-[8px]">
               Sale <span className="ml-2 text-rose-600">-{maxDiscount}%</span>
             </span>
           </div>
         )}
-        {Number(product?.totalReserved || 0) > 0 && (
+        {!isCompact && Number(product?.totalReserved || 0) > 0 && (
           <div className="absolute top-14 right-4 z-10">
             <span className="inline-flex items-center bg-amber-50 text-amber-700 text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-amber-100">
               Reserved {product.totalReserved}
             </span>
           </div>
         )}
-        {isReservedHigh && (
+        {!isCompact && isReservedHigh && (
           <div className="absolute top-24 right-4 z-10">
             <span className="inline-flex items-center bg-rose-50 text-rose-700 text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-rose-100">
               High Reserved
             </span>
           </div>
         )}
-        {isLowStock && (
+        {!isCompact && isLowStock && (
           <div className="absolute top-24 left-4 z-10">
             <span className="inline-flex items-center bg-amber-50 text-amber-700 text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-amber-100">
               Only {availableStock} left
@@ -308,12 +313,12 @@ export default function ProductCard({ product }) {
         <img
           src={imageSrc}
           alt={product.title}
-          className={`w-full h-full max-h-full max-w-full object-contain p-2 sm:p-4 transition-all duration-700 ${secondaryImageUrl ? 'group-hover:opacity-0' : 'group-hover:scale-105'}`}
+          className={`w-full h-full max-h-full max-w-full object-contain transition-all duration-700 ${isCompact ? 'p-2' : 'p-2 sm:p-4'} ${secondaryImageUrl && !isCompact ? 'group-hover:opacity-0' : 'group-hover:scale-105'}`}
           onError={() => {
             if (imageSrc !== '/placeholder.png') setImageSrc('/placeholder.png')
           }}
         />
-        {secondaryImageUrl && (
+        {secondaryImageUrl && !isCompact && (
           <img
             src={secondaryImageUrl}
             alt={`${product.title} alternate`}
@@ -322,18 +327,21 @@ export default function ProductCard({ product }) {
         )}
 
         {/* QUICK ADD OVERLAY */}
-        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <Button
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || isAdding}
-            className="w-full bg-white/95 backdrop-blur-md text-black hover:bg-black hover:text-white border-0 shadow-lg text-xs font-bold uppercase tracking-wider h-12 sm:h-11"
-          >
-            {isAdding ? 'Adding...' : (isOutOfStock ? 'Sold Out' : 'Quick Add')}
-          </Button>
-        </div>
+        {!isCompact && (
+          <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+            <Button
+              onClick={handleAddToCart}
+              disabled={isOutOfStock || isAdding}
+              className="w-full bg-white/95 backdrop-blur-md text-black hover:bg-black hover:text-white border-0 shadow-lg text-xs font-bold uppercase tracking-wider h-12 sm:h-11"
+            >
+              {isAdding ? 'Adding...' : (isOutOfStock ? 'Sold Out' : 'Quick Add')}
+            </Button>
+          </div>
+        )}
       </Link>
 
-      <div className="px-3 sm:px-5 pb-3 min-h-[44px]">
+      {!isCompact && (
+        <div className="px-3 sm:px-5 pb-3 min-h-[44px]">
         {galleryImages.length > 1 ? (
           <div className="flex items-center gap-2 overflow-hidden">
             {galleryImages.slice(0, 5).map((url, idx) => (
@@ -348,22 +356,25 @@ export default function ProductCard({ product }) {
             )}
           </div>
         ) : null}
-      </div>
+        </div>
+      )}
 
       {/* PRODUCT INFO */}
-      <div className="p-3 sm:p-5 space-y-2 flex-1 min-h-[88px]">
-        <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start sm:gap-2 min-w-0">
+      <div className={`flex-1 ${isCompact ? 'p-3 space-y-1' : 'p-3 sm:p-5 space-y-2 min-h-[88px]'}`}>
+        <div className={`flex flex-col gap-1 min-w-0 ${isCompact ? '' : 'sm:flex-row sm:justify-between sm:items-start sm:gap-2'}`}>
           <Link href={`/products/${product._id}`} className="flex-1 min-w-0">
-            <h3 className="text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 break-words group-hover:text-primary transition-colors min-w-0">
+            <h3 className={`font-bold text-gray-900 line-clamp-2 break-words group-hover:text-primary transition-colors min-w-0 ${isCompact ? 'text-xs' : 'text-xs sm:text-sm'}`}>
               {product.title}
             </h3>
           </Link>
           <PriceDisplay price={displayBasePrice} discount={maxDiscount} className="shrink-0 sm:text-right" />
         </div>
 
-        <div className="flex items-center gap-1 pt-1">
-          <StarRating rating={product.avgRating} size={14} />
-        </div>
+        {!isCompact && (
+          <div className="flex items-center gap-1 pt-1">
+            <StarRating rating={product.avgRating} size={14} />
+          </div>
+        )}
       </div>
     </div>
   )

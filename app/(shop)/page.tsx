@@ -486,7 +486,7 @@ function PageContent() {
                   <img
                     src={typeof card.image === 'string' ? card.image : card.image.src}
                     alt={card.title}
-                    className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="h-64 w-full object-contain bg-gradient-to-br from-slate-50 via-white to-amber-50 p-6 transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
