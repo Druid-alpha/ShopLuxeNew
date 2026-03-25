@@ -20,9 +20,6 @@ export default function FeaturedReviews() {
         <section className="py-20 bg-gray-50/50 relative overflow-hidden">
             <div className="max-w-6xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gray-500 mb-3">
-                        Welcome back
-                    </p>
                     <span className="text-[10px] font-black uppercase tracking-[.4em] text-gray-400 mb-4 block">
                         Testimonials
                     </span>
