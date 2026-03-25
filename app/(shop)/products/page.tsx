@@ -152,8 +152,9 @@ function PageContent() {
         const titles = list
           .map((p) => String(p?.title || '').trim())
           .filter(Boolean)
-        const unique = Array.from(new Set(titles)).slice(0, 6)
-        if (!cancelled) setSuggestions(unique)
+        const unique = Array.from(new Set(titles)) as string[]
+        const trimmed = unique.slice(0, 6)
+        if (!cancelled) setSuggestions(trimmed)
       } catch {
         if (!cancelled) setSuggestions([])
       } finally {
