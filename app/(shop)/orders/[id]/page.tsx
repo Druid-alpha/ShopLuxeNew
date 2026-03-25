@@ -172,6 +172,10 @@ function PageContent() {
       window.URL.revokeObjectURL(objectUrl)
       return true
     }
+    const downloadViaNavigation = (url) => {
+      window.location.assign(url)
+      return true
+    }
 
     let usedFallback = false
     try {
@@ -180,7 +184,11 @@ function PageContent() {
         title: 'Download started',
         description: 'Your invoice is being prepared.',
       })
-      await downloadViaApi(backendUrl)
+      if (isMobileDevice) {
+        await downloadViaNavigation(backendUrl)
+      } else {
+        await downloadViaApi(backendUrl)
+      }
       refetch()
       return
     } catch (err) {
@@ -192,7 +200,11 @@ function PageContent() {
           title: 'Download started',
           description: 'Your invoice is being prepared.',
         })
-        await downloadViaApi(backendUrl)
+        if (isMobileDevice) {
+          await downloadViaNavigation(backendUrl)
+        } else {
+          await downloadViaApi(backendUrl)
+        }
         refetch()
         return
       } catch (retryErr) {
