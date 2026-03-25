@@ -47,6 +47,42 @@ function PageContent() {
   }, [])
 
   const reduceMotion = prefersReducedMotion || isMobile
+  const audioUnlockedRef = React.useRef(false)
+
+  React.useEffect(() => {
+    const unlock = () => {
+      audioUnlockedRef.current = true
+      document.removeEventListener('pointerdown', unlock)
+      document.removeEventListener('keydown', unlock)
+    }
+    document.addEventListener('pointerdown', unlock, { once: true })
+    document.addEventListener('keydown', unlock, { once: true })
+    return () => {
+      document.removeEventListener('pointerdown', unlock)
+      document.removeEventListener('keydown', unlock)
+    }
+  }, [])
+
+  const playHoverChime = React.useCallback((frequency = 520) => {
+    if (!audioUnlockedRef.current || reduceMotion) return
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+      if (!AudioContext) return
+      const ctx = new AudioContext()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'triangle'
+      osc.frequency.value = frequency
+      gain.gain.value = 0.02
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      osc.stop(ctx.currentTime + 0.08)
+      osc.onended = () => ctx.close()
+    } catch {
+      // ignore
+    }
+  }, [reduceMotion])
 
   // --- Animation Variants (lighter on mobile) ---
   const staggerContainer = React.useMemo<Variants>(() => ({
@@ -75,6 +111,14 @@ function PageContent() {
   const slideInRight = React.useMemo<Variants>(() => ({
     hidden: { opacity: 0, x: reduceMotion ? 0 : 50 },
     show: { opacity: 1, x: 0, transition: { duration: reduceMotion ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] } }
+  }), [reduceMotion])
+  const cardReveal = React.useMemo<Variants>(() => ({
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 16 },
+    show: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: reduceMotion ? 0.15 : 0.45, delay: reduceMotion ? 0 : i * 0.08, ease: [0.16, 1, 0.3, 1] }
+    })
   }), [reduceMotion])
 
   const motionViewport = reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-100px" }
@@ -270,27 +314,53 @@ function PageContent() {
           variants={staggerContainer}
           className="pb-10"
         >
-          <motion.div variants={fadeUp} className="flex justify-between items-end mb-12 border-b pb-6">
-            <h2 className="text-2xl md:text-3xl font-black tracking-tighter uppercase font-display">Categories</h2>
+          <motion.div variants={fadeUp} className="flex justify-between items-end mb-10 border-b pb-6">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Shop by Category</p>
+              <h2 className="text-2xl md:text-3xl font-black tracking-tighter uppercase font-display">Curated Essentials</h2>
+              <p className="text-sm text-gray-500 mt-2">Standard, clean categories with a premium feel.</p>
+            </div>
             <Link href="/products" className="text-xs font-bold uppercase tracking-widest border-b-2 border-black pb-1 hover:text-gray-500 hover:border-gray-500 transition-all">View All</Link>
           </motion.div>
 
-          <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-2 md:gap-8 max-w-4xl mx-auto">
+          <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
+            <div className="grid gap-6 md:grid-cols-3 px-4 sm:px-6 lg:px-8">
             {[
-              { id: 'electronics', iconSrc: '/icons/electronics.svg', label: 'Electronics' },
-              { id: 'clothing', iconSrc: '/icons/clothing.svg', label: 'Clothing' },
-              { id: 'groceries', iconSrc: '/icons/groceries.svg', label: 'Groceries' }
-            ].map(cat => (
-              <motion.div key={cat.id} variants={scaleIn} className="flex flex-col items-center">
+              { id: 'clothing', title: 'Tailored Essentials', subtitle: 'Minimal fits, elevated fabrics', image: home, edition: 'Edition 01' },
+              { id: 'electronics', title: 'Tech Forward', subtitle: 'Smart devices & premium gadgets', image: phone, edition: 'Edition 02' },
+              { id: 'groceries', title: 'Fresh Market', subtitle: 'Daily staples with quality', image: grocery, edition: 'Edition 03' },
+            ].map((cat, idx) => (
+              <motion.div key={cat.id} variants={cardReveal} custom={idx}>
                 <div
                   onClick={() => router.push(`/products?category=${cat.id}`)}
-                  className="group relative flex items-center justify-center w-full aspect-square rounded-full border transition-all duration-500 cursor-pointer overflow-hidden bg-gray-50 border-gray-100 hover:bg-black hover:border-black shadow-sm hover:shadow-xl"
+                  onMouseEnter={() => playHoverChime(500 + idx * 60)}
+                  className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm cursor-pointer"
                 >
-                  <img src={cat.iconSrc} alt={`${cat.label} icon`} className="h-6 w-6 md:h-12 md:w-12 transition-transform group-hover:scale-110 duration-500" loading="lazy" />
+                  <div className="absolute -inset-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                    <div className="h-full w-full bg-gradient-to-tr from-white/0 via-white/30 to-white/0 blur-3xl" />
+                  </div>
+                  <img
+                    src={typeof cat.image === 'string' ? cat.image : cat.image.src}
+                    alt={cat.title}
+                    className="h-60 w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Category</p>
+                    <h3 className="text-2xl font-bold mt-2">{cat.title}</h3>
+                    <p className="text-sm text-white/80 mt-1">{cat.subtitle}</p>
+                    <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm border border-white/30">
+                      Shop Now <ArrowRight className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                  <div className="absolute top-4 left-4 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em] text-white/80 backdrop-blur-sm border border-white/30">
+                    {cat.edition}
+                  </div>
                 </div>
-                <span className="mt-4 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-gray-900">{cat.label}</span>
               </motion.div>
             ))}
+            </div>
           </div>
         </motion.section>
 
