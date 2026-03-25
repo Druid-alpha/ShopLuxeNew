@@ -12,7 +12,7 @@ export default function ModalNavigate({ href, className, children }: Props) {
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    window.location.assign(href);
+    window.location.replace(href);
   };
 
   return (

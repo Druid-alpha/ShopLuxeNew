@@ -242,12 +242,6 @@ function PageContent() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold font-display">All Products</h1>
         <div className="flex items-center gap-2">
-          <a
-            href="/products/featured"
-            className="hidden sm:inline-flex rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-black"
-          >
-            Featured (Server Cache)
-          </a>
           <Button variant="outline" className="lg:hidden flex gap-2" onClick={() => setMobileFilters(true)}>
             <SlidersHorizontal size={16} />
             Filters

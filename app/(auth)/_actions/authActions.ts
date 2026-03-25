@@ -142,7 +142,12 @@ export async function forgotPasswordAction(_prev: AuthActionState, formData: For
     user.resetTokenExpires = Date.now() + 1000 * 60 * 30;
     await user.save();
 
-    const resetLink = `${process.env.CLIENT_URL || "http://localhost:3000"}/reset-password/${resetToken}`;
+    const baseUrl =
+      process.env.CLIENT_URL ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      "http://localhost:3000";
+    const resetLink = `${baseUrl}/reset-password/${resetToken}`;
 
     await sendEmail({
       to: user.email,

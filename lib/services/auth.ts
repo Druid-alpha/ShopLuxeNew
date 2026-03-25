@@ -433,7 +433,12 @@ export async function forgotPassword(request: NextRequest) {
     user.resetTokenExpires = Date.now() + 1000 * 60 * 30;
     await user.save();
 
-    const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const baseUrl =
+      process.env.CLIENT_URL ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+      request.headers.get("origin") ||
+      "http://localhost:3000";
     const resetLink = `${baseUrl}/reset-password/${resetToken}`;
 
     await sendEmail({
