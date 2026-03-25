@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/lib/db/models/user";
 import Product from "@/lib/db/models/product";
+import "@/lib/db/models/Category";
 import { runOrderReservationCleanupOnce } from "@/lib/jobs/orderReservationCleanupJob";
 import { requireAuth } from "@/app/api/_utils/auth";
 import {

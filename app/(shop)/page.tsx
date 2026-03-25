@@ -125,6 +125,10 @@ function PageContent() {
 
   const motionViewport = reduceMotion ? { once: true, amount: 0.2 } : { once: true, margin: "-100px" }
   const user = useAppSelector((state) => state.auth.user)
+  const userLabelRaw = user?.name || user?.username || user?.email?.split('@')?.[0] || 'Shopper'
+  const userLabel = userLabelRaw
+    ? `${userLabelRaw}`.trim().split(' ')[0]
+    : 'Shopper'
   const [stableFeaturedProducts, setStableFeaturedProducts] = React.useState(() => {
     if (typeof window === 'undefined') return []
     try {
@@ -367,7 +371,7 @@ function PageContent() {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">For You</p>
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-display">
-                  {user ? `Welcome back, ${user.name?.split(' ')[0] || 'Shopper'}` : 'Your Picks'}
+                  {user ? `Welcome back, ${userLabel || 'Shopper'}` : 'Your Picks'}
                 </h2>
                 <p className="text-sm text-gray-500 mt-2">Hand-picked based on what you viewed recently.</p>
               </div>
