@@ -66,7 +66,7 @@ export default async function ProductQuickViewModal({ params }: { params: Params
             </div>
             <div className="flex flex-wrap gap-3">
               <ModalNavigate
-                href={`/products/${id}`}
+                href={`/product/${id}`}
                 className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white"
               >
                 View full details
