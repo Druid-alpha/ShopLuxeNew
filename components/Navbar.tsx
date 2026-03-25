@@ -113,9 +113,6 @@ export default function Navbar() {
 
   const adminLinks = [
     { name: 'Dashboard', path: '/admin' },
-    { name: 'Overview', path: '/admin/overview' },
-    { name: 'Product Actions', path: '/admin/actions/products' },
-    { name: 'Review Actions', path: '/admin/actions/reviews' },
     { name: 'Products', path: '/admin/products' },
     { name: 'Users', path: '/admin/users' },
     { name: 'Orders', path: '/admin/orders' },

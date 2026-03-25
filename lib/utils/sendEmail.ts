@@ -72,7 +72,11 @@ export default async function sendEmail({
     const smtpService = process.env.SMTP_SERVICE;
     const smtpHost = process.env.SMTP_HOST;
     const smtpPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined;
-    const smtpSecure = process.env.SMTP_SECURE === "true";
+    const smtpSecure = process.env.SMTP_SECURE
+      ? process.env.SMTP_SECURE === "true"
+      : smtpPort === 465;
+    const smtpFrom = process.env.SMTP_FROM || process.env.EMAIL_FROM || smtpUser;
+    const smtpReplyTo = process.env.SMTP_REPLY_TO;
 
     const transporter = nodemailer.createTransport(
       smtpHost
@@ -93,11 +97,12 @@ export default async function sendEmail({
     const finalHtml = htmlContent ? emailTemplate(title || subject, htmlContent, preheader) : undefined;
 
     await transporter.sendMail({
-      from: `"${process.env.APP_NAME || "ShopLuxe."}" <${smtpUser}>`,
+      from: `"${process.env.APP_NAME || "ShopLuxe."}" <${smtpFrom}>`,
       to,
       subject,
       text,
       html: finalHtml,
+      ...(smtpReplyTo ? { replyTo: smtpReplyTo } : {}),
     });
   } catch (error: any) {
     console.error("Email sending failed:", {

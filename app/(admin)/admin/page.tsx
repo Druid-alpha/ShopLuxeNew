@@ -139,24 +139,7 @@ function PageContent() {
           <h1 className='text-2xl font-black tracking-tighter uppercase font-display'>Admin Dashboard</h1>
           <p className='text-xs font-bold uppercase tracking-widest text-gray-400 mt-1'>Manage products, orders, and customers</p>
         </div>
-        <Link
-          href="/admin/overview"
-          className="rounded-lg border border-gray-200 px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 hover:text-black"
-        >
-          Open Overview
-        </Link>
-        <Link
-          href="/admin/actions/products"
-          className="rounded-lg border border-gray-200 px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 hover:text-black"
-        >
-          Product Actions
-        </Link>
-        <Link
-          href="/admin/actions/reviews"
-          className="rounded-lg border border-gray-200 px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 hover:text-black"
-        >
-          Review Actions
-        </Link>
+        
       </div>
       <div className='flex flex-wrap gap-2 mb-8 bg-gray-50 p-2 rounded-2xl w-fit'>
         {[
