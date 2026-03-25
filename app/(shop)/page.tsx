@@ -21,6 +21,9 @@ import home from '@/assets/women.jpg'
 import grocery from '@/assets/grocery.jpg'
 import phone from '@/assets/phone.jpg'
 import delivery from '@/assets/delivery.jpg'
+import headphone from '@/assets/headphone.jpg'
+import hoodie from '@/assets/hoodie.jpg'
+import shopping from '@/assets/shopping.jpg'
 import type { StaticImageData } from 'next/image'
 
 function PageContent() {
@@ -304,7 +307,7 @@ function PageContent() {
       </section>
 
       {/* MAIN CONTAINER */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24 mt-10">
 
         {/* SHOP BY CATEGORY */}
         <motion.section
@@ -312,7 +315,7 @@ function PageContent() {
           whileInView="show"
           viewport={motionViewport}
           variants={staggerContainer}
-          className="pb-10"
+          className="pt-10 pb-10"
         >
           <motion.div variants={fadeUp} className="flex justify-between items-end mb-10 border-b pb-6">
             <div>
@@ -326,9 +329,9 @@ function PageContent() {
           <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="grid gap-6 md:grid-cols-3 px-4 sm:px-6 lg:px-8">
             {[
-              { id: 'clothing', title: 'Tailored Essentials', subtitle: 'Minimal fits, elevated fabrics', image: home, edition: 'Edition 01' },
-              { id: 'electronics', title: 'Tech Forward', subtitle: 'Smart devices & premium gadgets', image: phone, edition: 'Edition 02' },
-              { id: 'groceries', title: 'Fresh Market', subtitle: 'Daily staples with quality', image: grocery, edition: 'Edition 03' },
+              { id: 'clothing', title: 'Tailored Essentials', subtitle: 'Minimal fits, elevated fabrics', image: hoodie, edition: 'Edition 01' },
+              { id: 'electronics', title: 'Studio Tech', subtitle: 'High fidelity audio + gadgets', image: headphone, edition: 'Edition 02' },
+              { id: 'groceries', title: 'Market Edit', subtitle: 'Curated daily staples', image: shopping, edition: 'Edition 03' },
             ].map((cat, idx) => (
               <motion.div key={cat.id} variants={cardReveal} custom={idx}>
                 <div

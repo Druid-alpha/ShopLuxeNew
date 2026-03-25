@@ -50,6 +50,13 @@ function PageContent() {
     ['1', 'true', 'yes'].includes(String(searchParams.get('sale') || '').toLowerCase())
   )
   const [suggestions, setSuggestions] = React.useState<string[]>([])
+  const handleSearch = React.useCallback((value?: string) => {
+    const next = typeof value === 'string' ? value : search
+    setSearch(next)
+    setDebouncedSearch(next)
+    setPage(1)
+    setSuggestions([])
+  }, [search])
   const [mobileFilters, setMobileFilters] = React.useState(false)
   const [isResolvingCategory, setIsResolvingCategory] = React.useState(false)
   const skipNextUrlSyncRef = React.useRef(false)
@@ -284,12 +291,7 @@ function PageContent() {
             search={search}
             setSearch={setSearch}
             suggestions={suggestions}
-            onSuggestion={(value) => {
-              setSearch(value)
-              setDebouncedSearch(value)
-              setPage(1)
-              setSuggestions([])
-            }}
+            onSearch={handleSearch}
           />
         </div>
 

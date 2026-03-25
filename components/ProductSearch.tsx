@@ -26,9 +26,10 @@ export default function ProductSearch({ search, setSearch, onSearch = undefined,
           setSearch(selected)
         }
         setActiveIndex(-1)
+        if (onSearch) onSearch(selected)
         return
       }
-      if (onSearch) onSearch()
+      if (onSearch) onSearch(search)
     }
     if (e.key === 'Escape') {
       setActiveIndex(-1)
@@ -73,6 +74,7 @@ export default function ProductSearch({ search, setSearch, onSearch = undefined,
                   setSearch(s)
                 }
                 setActiveIndex(-1)
+                if (onSearch) onSearch(s)
               }}
               className={`w-full text-left px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-colors ${
                 idx === activeIndex ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-50'
