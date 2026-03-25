@@ -457,52 +457,6 @@ function PageContent() {
         {/* RECENTLY VIEWED */}
         <RecentlyViewed title="Recently Viewed" />
 
-        {/* EDITORIAL COLLECTIONS */}
-        <section className="py-12">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={motionViewport}
-            variants={fadeUp}
-            className="flex justify-between items-end mb-8"
-          >
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Collections</p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-display">Editorial Picks</h2>
-              <p className="text-sm text-gray-500 mt-2">Curated drops with a distinct point of view.</p>
-            </div>
-          </motion.div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { title: 'Urban Essentials', subtitle: 'Minimal, monochrome, elevated', image: home, link: '/products?category=clothing' },
-              { title: 'Tech Forward', subtitle: 'New arrivals in electronics', image: phone, link: '/products?category=electronics' },
-              { title: 'Fresh Market', subtitle: 'Groceries with premium quality', image: grocery, link: '/products?category=groceries' },
-            ].map((card) => (
-              <motion.div key={card.title} variants={fadeUp}>
-                <div
-                  onClick={() => router.push(card.link)}
-                  className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm cursor-pointer"
-                >
-                  <img
-                    src={typeof card.image === 'string' ? card.image : card.image.src}
-                    alt={card.title}
-                    className="h-64 w-full object-contain bg-gradient-to-br from-slate-50 via-white to-amber-50 p-6 transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Collection</p>
-                    <h3 className="text-2xl font-bold mt-2">{card.title}</h3>
-                    <p className="text-sm text-white/80 mt-1">{card.subtitle}</p>
-                    <div className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-                      Explore <ArrowRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
         {/* VALUE PROPOSITION GRID */}
         <section className="py-12 border-t border-b border-gray-100">
           <motion.div
@@ -563,6 +517,52 @@ function PageContent() {
             </div>
           </motion.div>
         </motion.section>
+
+        {/* EDITORIAL COLLECTIONS */}
+        <section className="py-12">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={motionViewport}
+            variants={fadeUp}
+            className="flex justify-between items-end mb-8"
+          >
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Collections</p>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-display">Editorial Picks</h2>
+              <p className="text-sm text-gray-500 mt-2">Curated drops with a distinct point of view.</p>
+            </div>
+          </motion.div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { title: 'Urban Essentials', subtitle: 'Minimal, monochrome, elevated', image: home, link: '/products?category=clothing' },
+              { title: 'Tech Forward', subtitle: 'New arrivals in electronics', image: phone, link: '/products?category=electronics' },
+              { title: 'Fresh Market', subtitle: 'Groceries with premium quality', image: grocery, link: '/products?category=groceries' },
+            ].map((card) => (
+              <motion.div key={card.title} variants={fadeUp}>
+                <div
+                  onClick={() => router.push(card.link)}
+                  className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm cursor-pointer"
+                >
+                  <img
+                    src={typeof card.image === 'string' ? card.image : card.image.src}
+                    alt={card.title}
+                    className="h-64 w-full object-contain bg-gradient-to-br from-slate-50 via-white to-amber-50 p-6 transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Collection</p>
+                    <h3 className="text-2xl font-bold mt-2">{card.title}</h3>
+                    <p className="text-sm text-white/80 mt-1">{card.subtitle}</p>
+                    <div className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                      Explore <ArrowRight className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
       </div>
     </div>

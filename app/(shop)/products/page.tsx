@@ -292,6 +292,7 @@ function PageContent() {
             setSearch={setSearch}
             suggestions={suggestions}
             onSearch={handleSearch}
+            onSuggestion={handleSearch}
           />
         </div>
 

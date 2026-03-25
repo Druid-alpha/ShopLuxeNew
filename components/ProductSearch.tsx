@@ -58,7 +58,7 @@ export default function ProductSearch({ search, setSearch, onSearch = undefined,
           </button>
         )}
         {onSearch && (
-          <Button onClick={onSearch} className="shrink-0">Search</Button>
+          <Button onClick={() => onSearch(search)} className="shrink-0">Search</Button>
         )}
       </div>
       {hasSuggestions && (
