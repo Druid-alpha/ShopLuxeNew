@@ -428,11 +428,13 @@ export async function forgotPassword(request: NextRequest) {
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    user.resetToken = resetToken;
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.resetToken = hashedToken;
     user.resetTokenExpires = Date.now() + 1000 * 60 * 30;
     await user.save();
 
-    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const resetLink = `${baseUrl}/reset-password/${resetToken}`;
 
     await sendEmail({
       to: user.email,
@@ -446,7 +448,7 @@ export async function forgotPassword(request: NextRequest) {
               <div style="text-align:center; margin:20px 0;">
                 <a class="button" href="${resetLink}">Reset Password</a>
               </div>
-              <p class="muted" style="margin-top: 20px;">This link expires in 30 minutes. If you didn’t request a reset, you can ignore this email.</p>
+              <p class="muted" style="margin-top: 20px;">This link expires in 30 minutes. If you didn't request a reset, you can ignore this email.</p>
             `,
       text: `Reset your ShopLuxe password: ${resetLink}`,
     });
