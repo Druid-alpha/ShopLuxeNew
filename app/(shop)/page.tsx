@@ -14,7 +14,6 @@ import { useGetProductsQuery } from '@/features/products/productApi'
 import ProductCard from '@/features/products/ProductCard'
 import { Button } from '@/components/ui/button'
 import FeaturedReviews from '@/components/FeaturedReviews'
-import RecentlyViewed from '@/components/RecentlyViewed'
 import { useAppSelector } from '@/store/hooks'
 
 import home from '@/assets/women.jpg'
@@ -309,63 +308,51 @@ function PageContent() {
       {/* MAIN CONTAINER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24 mt-10">
 
-        {/* SHOP BY CATEGORY */}
-        <motion.section
-          initial="hidden"
-          whileInView="show"
-          viewport={motionViewport}
-          variants={staggerContainer}
-          className="pt-10 pb-10"
-        >
-          <motion.div variants={fadeUp} className="flex justify-between items-end mb-10 border-b pb-6">
+        {/* EDITORIAL COLLECTIONS */}
+        <section className="pt-10 pb-10">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={motionViewport}
+            variants={fadeUp}
+            className="flex justify-between items-end mb-8"
+          >
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Shop by Category</p>
-              <h2 className="text-2xl md:text-3xl font-black tracking-tighter uppercase font-display">Curated Essentials</h2>
-              <p className="text-sm text-gray-500 mt-2">Standard, clean categories with a premium feel.</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Collections</p>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-display">Editorial Picks</h2>
+              <p className="text-sm text-gray-500 mt-2">Curated drops with a distinct point of view.</p>
             </div>
-            <Link href="/products" className="text-xs font-bold uppercase tracking-widest border-b-2 border-black pb-1 hover:text-gray-500 hover:border-gray-500 transition-all">View All</Link>
           </motion.div>
-
-          <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
-            <div className="grid gap-6 md:grid-cols-3 px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-6 md:grid-cols-3">
             {[
-              { id: 'clothing', title: 'Tailored Essentials', subtitle: 'Minimal fits, elevated fabrics', image: hoodie, edition: 'Edition 01' },
-              { id: 'electronics', title: 'Studio Tech', subtitle: 'High fidelity audio + gadgets', image: headphone, edition: 'Edition 02' },
-              { id: 'groceries', title: 'Market Edit', subtitle: 'Curated daily staples', image: shopping, edition: 'Edition 03' },
-            ].map((cat, idx) => (
-              <motion.div key={cat.id} variants={cardReveal} custom={idx}>
+              { title: 'Urban Essentials', subtitle: 'Minimal, monochrome, elevated', image: home, link: '/products?category=clothing' },
+              { title: 'Tech Forward', subtitle: 'New arrivals in electronics', image: phone, link: '/products?category=electronics' },
+              { title: 'Fresh Market', subtitle: 'Groceries with premium quality', image: grocery, link: '/products?category=groceries' },
+            ].map((card) => (
+              <motion.div key={card.title} variants={fadeUp}>
                 <div
-                  onClick={() => router.push(`/products?category=${cat.id}`)}
-                  onMouseEnter={() => playHoverChime(500 + idx * 60)}
+                  onClick={() => router.push(card.link)}
                   className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm cursor-pointer"
                 >
-                  <div className="absolute -inset-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                    <div className="h-full w-full bg-gradient-to-tr from-white/0 via-white/30 to-white/0 blur-3xl" />
-                  </div>
                   <img
-                    src={typeof cat.image === 'string' ? cat.image : cat.image.src}
-                    alt={cat.title}
-                    className="h-60 w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    loading="lazy"
+                    src={typeof card.image === 'string' ? card.image : card.image.src}
+                    alt={card.title}
+                    className="h-64 w-full object-contain bg-gradient-to-br from-slate-50 via-white to-amber-50 p-6 transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Category</p>
-                    <h3 className="text-2xl font-bold mt-2">{cat.title}</h3>
-                    <p className="text-sm text-white/80 mt-1">{cat.subtitle}</p>
-                    <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm border border-white/30">
-                      Shop Now <ArrowRight className="h-3.5 w-3.5" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Collection</p>
+                    <h3 className="text-2xl font-bold mt-2">{card.title}</h3>
+                    <p className="text-sm text-white/80 mt-1">{card.subtitle}</p>
+                    <div className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                      Explore <ArrowRight className="h-4 w-4" />
                     </div>
-                  </div>
-                  <div className="absolute top-4 left-4 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em] text-white/80 backdrop-blur-sm border border-white/30">
-                    {cat.edition}
                   </div>
                 </div>
               </motion.div>
             ))}
-            </div>
           </div>
-        </motion.section>
+        </section>
 
         {/* PERSONALIZED PICKS */}
         {(user || personalizedProducts.length > 0) && (
@@ -454,9 +441,6 @@ function PageContent() {
           </div>
         </section>
 
-        {/* RECENTLY VIEWED */}
-        <RecentlyViewed title="Recently Viewed" />
-
         {/* VALUE PROPOSITION GRID */}
         <section className="py-12 border-t border-b border-gray-100">
           <motion.div
@@ -517,52 +501,6 @@ function PageContent() {
             </div>
           </motion.div>
         </motion.section>
-
-        {/* EDITORIAL COLLECTIONS */}
-        <section className="py-12">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={motionViewport}
-            variants={fadeUp}
-            className="flex justify-between items-end mb-8"
-          >
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Collections</p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-display">Editorial Picks</h2>
-              <p className="text-sm text-gray-500 mt-2">Curated drops with a distinct point of view.</p>
-            </div>
-          </motion.div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { title: 'Urban Essentials', subtitle: 'Minimal, monochrome, elevated', image: home, link: '/products?category=clothing' },
-              { title: 'Tech Forward', subtitle: 'New arrivals in electronics', image: phone, link: '/products?category=electronics' },
-              { title: 'Fresh Market', subtitle: 'Groceries with premium quality', image: grocery, link: '/products?category=groceries' },
-            ].map((card) => (
-              <motion.div key={card.title} variants={fadeUp}>
-                <div
-                  onClick={() => router.push(card.link)}
-                  className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm cursor-pointer"
-                >
-                  <img
-                    src={typeof card.image === 'string' ? card.image : card.image.src}
-                    alt={card.title}
-                    className="h-64 w-full object-contain bg-gradient-to-br from-slate-50 via-white to-amber-50 p-6 transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">Collection</p>
-                    <h3 className="text-2xl font-bold mt-2">{card.title}</h3>
-                    <p className="text-sm text-white/80 mt-1">{card.subtitle}</p>
-                    <div className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-                      Explore <ArrowRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
 
       </div>
     </div>
