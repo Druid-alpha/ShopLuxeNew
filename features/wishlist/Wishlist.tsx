@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useToast } from "@/hooks/use-toast";
 import { addGuestCart, setCart } from "../cart/cartSlice";
 import * as cartApi from "../cart/cartApi";
-import { useGetFeaturedProductsQuery, useGetProductsByIdsQuery } from "@/features/products/productApi";
+import { useGetProductsByIdsQuery, useGetProductsQuery } from "@/features/products/productApi";
 import ProductCard from "@/features/products/ProductCard";
 import { toggleGuestWishlist } from "./wishlistSlice";
 import type { Product } from "@/types/models";
@@ -25,7 +25,7 @@ export default function Wishlist() {
 
   // Fetch wishlist from backend
   const { data, isLoading, isError } = useGetWishlistQuery(undefined, { skip: !user })
-  const { data: featuredData } = useGetFeaturedProductsQuery(undefined)
+  const { data: featuredData } = useGetProductsQuery({ page: 1, limit: 12, featured: true, sortBy: "newest" })
   const [toggleWishlist] = useToggleWishlistMutation()
   const { data: guestProductsData, isLoading: isGuestLoading } = useGetProductsByIdsQuery(
     { ids: guestWishlist },

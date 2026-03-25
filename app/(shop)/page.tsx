@@ -10,7 +10,7 @@ import { ArrowRight, Truck, ShieldCheck, Clock } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 
-import { useGetFeaturedProductsQuery, useGetProductsQuery } from '@/features/products/productApi'
+import { useGetProductsQuery } from '@/features/products/productApi'
 import ProductCard from '@/features/products/ProductCard'
 import { Button } from '@/components/ui/button'
 import FeaturedReviews from '@/components/FeaturedReviews'
@@ -84,7 +84,7 @@ function PageContent() {
     isFetching: isFeaturedFetching,
     isError: isFeaturedError,
     refetch: refetchFeatured
-  } = useGetFeaturedProductsQuery(undefined, {
+  } = useGetProductsQuery({ page: 1, limit: 12, featured: true, sortBy: 'newest' }, {
     refetchOnMountOrArgChange: true,
     refetchOnFocus: true,
     refetchOnReconnect: true
