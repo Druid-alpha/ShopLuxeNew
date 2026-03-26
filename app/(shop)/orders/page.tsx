@@ -185,15 +185,24 @@ function PageContent() {
                 <div className="flex flex-wrap gap-4 pt-2">
                   {order.items?.map((item: any, idx: number) => {
                     const variant = item.variant || {}
+                    const imageUrl = item?.image
+                      || item?.productImage
+                      || item?.product?.images?.[0]?.url
+                      || item?.product?.image?.url
+                      || item?.product?.thumbnail
+                      || ''
+                    const title = item.title || item?.product?.title || 'Product'
                     return (
                       <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 bg-gray-50/50 border border-gray-100 p-4 rounded-2xl min-w-[280px] flex-1">
-                        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm">
-                          {item.image && (
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform hover:scale-110 duration-500" />
+                        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm flex items-center justify-center">
+                          {imageUrl ? (
+                            <img src={imageUrl} alt={title} className="w-full h-full object-contain transition-transform hover:scale-110 duration-500" />
+                          ) : (
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Item</span>
                           )}
                         </div>
                         <div className="flex flex-col flex-1 min-w-0">
-                          <span className="text-sm font-black text-gray-900 line-clamp-1 mb-1">{item.title}</span>
+                          <span className="text-sm font-black text-gray-900 line-clamp-1 mb-1">{title}</span>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">Qty: {item.qty || 1}</span>
                             {(variant.size || item.size || item.clothingSize) && (
