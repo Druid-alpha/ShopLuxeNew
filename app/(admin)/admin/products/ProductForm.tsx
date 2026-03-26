@@ -86,6 +86,8 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
   // ---------------- RTK QUERY MUTATIONS ----------------
   const [createProduct] = useCreateProductMutation()
   const [updateProduct] = useUpdateProductMutation()
+
+
   const { data: fullProductData, isFetching: isFetchingProduct } = useGetProductQuery(product?._id, {
     skip: !product?._id
   })
@@ -93,7 +95,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
 
   // ---------------- INLINE CUSTOM COLOR CREATION ----------------
   // isColorPickerOpen can be: false, 'main', or a variant index (number)
-  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState<any>(false)
   const [newColorName, setNewColorName] = useState('')
   const [newColorHex, setNewColorHex] = useState('#000000')
   const [creatingColor, setCreatingColor] = useState(false)
