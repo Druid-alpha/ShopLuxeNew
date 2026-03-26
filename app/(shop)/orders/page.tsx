@@ -183,32 +183,41 @@ function PageContent() {
 
                 {/* Items List */}
                 <div className="flex flex-wrap gap-4 pt-2">
-                  {order.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 border border-gray-100 p-3 rounded-xl min-w-[200px] flex-1">
-                      <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        {item.image ? (
-                           <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                        ) : (
-                           <Package className="w-6 h-6 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="flex flex-col flex-1">
-                        <span className="text-xs font-bold text-gray-900 line-clamp-1">{item.title}</span>
-                        <div className="text-[10px] text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-gray-700 bg-white px-2 py-0.5 rounded border">Qty: {item.qty || 1}</span>
-                          {(item.size || item.clothingSize) && (
-                            <span className="bg-white px-2 py-0.5 rounded border">Size: {item.size || item.clothingSize}</span>
-                          )}
-                          {item.color && (
-                            <div className="flex items-center gap-1.5 bg-white px-2 py-0.5 rounded border">
-                              <span className="w-2.5 h-2.5 rounded-full border border-gray-200" style={{ backgroundColor: item.code || item.color }}></span>
-                              <span>{item.color}</span>
-                            </div>
+                  {order.items?.map((item: any, idx: number) => {
+                    const variant = item.variant || {}
+                    return (
+                      <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 bg-gray-50/50 border border-gray-100 p-4 rounded-2xl min-w-[280px] flex-1">
+                        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm">
+                          {item.image && (
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform hover:scale-110 duration-500" />
                           )}
                         </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="text-sm font-black text-gray-900 line-clamp-1 mb-1">{item.title}</span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">Qty: {item.qty || 1}</span>
+                            {(variant.size || item.size || item.clothingSize) && (
+                              <span className="text-[10px] font-black uppercase tracking-widest text-gray-600 bg-white border border-gray-100 px-2 py-1 rounded-lg">
+                                Size: {variant.size || item.size || item.clothingSize}
+                              </span>
+                            )}
+                            {(variant.color || item.color) && (
+                              <div className="flex items-center gap-1.5 bg-white border border-gray-100 px-2 py-1 rounded-lg">
+                                <span 
+                                  className="w-2.5 h-2.5 rounded-full border border-gray-200" 
+                                  style={{ backgroundColor: variant.colorCode || item.code || variant.color || item.color }}
+                                ></span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">{variant.color || item.color}</span>
+                              </div>
+                            )}
+                            {variant.sku && (
+                              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">SKU: {variant.sku}</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
                 {stepIndex === null ? (

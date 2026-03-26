@@ -175,7 +175,10 @@ export async function createOrder(request: NextRequest) {
         }
       }
 
-      total += price * cartItem.qty;
+      let itemImage = product.images?.[0]?.url || null;
+      if (resolvedVariant && resolvedVariant.image?.url) {
+        itemImage = resolvedVariant.image.url;
+      }
 
       orderItems.push({
         product: product._id,
@@ -184,6 +187,7 @@ export async function createOrder(request: NextRequest) {
         priceAtPurchase: price,
         clothingType: product.clothingType || null,
         variant: variantData || null,
+        image: itemImage,
       });
     }
 

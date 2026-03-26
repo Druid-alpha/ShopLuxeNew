@@ -1,83 +1,70 @@
-# NextClass4 (Full-Stack Next.js)
+# ShopLuxe | Premium E-Commerce Platform
 
-This project is a **pure Next.js App Router** codebase (no separate Express server).
-API endpoints live in `app/api/*` and call reusable server logic in `lib/services/*`.
+ShopLuxe is a high-end, full-stack e-commerce solution built with **Next.js 16 (App Router)**. It features a modern, responsive storefront and a powerful administrative dashboard designed for boutique retail operations.
 
-## Quick Start
+## Key Features
 
-```bash
-npm install
-npm run dev
-```
+### 🛍 Storefront
+- **Dynamic Product Catalog:** Responsive grid layout with advanced filtering by category, brand, and color.
+- **Variant Selection System:** Intuitive selection of sizes and colors for clothing, shoes, and accessories.
+- **Real-time Order Tracking:** Detailed order history with live status updates and product variant images.
+- **Secure Checkout:** Integrated with Paystack for seamless payment processing.
+- **Product Reviews:** Verified customer reviews and ratings system.
 
-Open `http://localhost:3000`.
+### 🛡 Admin Dashboard
+- **Comprehensive Management:** Full CRUD operations for products, categories, brands, and colors.
+- **Advanced Product Form:** 1,200+ lines of robust logic for managing complex product variants, SKUs, and inventory.
+- **Real-time Notifications:** Audio and visual alerts for new orders, user registrations, and return requests.
+- **Order Processing:** Streamlined interface for managing shipments, deliveries, and customer returns.
+- **User Analytics:** High-level overview of sales performance and user growth.
 
-## Project Layout
+### 📧 Communication
+- **Vibrant Email Templates:** Premium, colorful email designs for order confirmations, shipping updates, and return processing.
+- **Support Integration:** Real-time messaging system for customer support and return requests.
 
-- `app/` App Router pages, layouts, and route handlers (`app/api/*`)
-- `components/` shared UI components
-- `features/` feature modules (Redux slices, RTK Query endpoints)
-- `lib/` server-side utilities, services, db connection, models
-- `store/` Redux store setup
-- `types/` shared types
+## Tech Stack
 
-## Environment Variables
+- **Framework:** Next.js 15+ (App Router, Server Actions, Route Handlers)
+- **State Management:** Redux Toolkit & RTK Query
+- **Database:** MongoDB with Mongoose
+- **Styling:** Tailwind CSS & Lucide Icons
+- **Authentication:** JWT-based secure auth with HTTP-only cookies
+- **Cloud Infrastructure:** Cloudinary for media storage, Vercel for deployment
 
-Create a `.env.local` with values like:
+## Getting Started
 
-- `MONGO_URI`
-- `ACCESS_TOKEN_SECRET`
-- `REFRESH_TOKEN_SECRET`
-- `JWT_ACCESS_EXPIRES`
-- `JWT_REFRESH_EXPIRES`
-- `CLIENT_URL`
-- `COOKIE_DOMAIN`
-- `COOKIE_SECURE`
-- `COOKIE_SAME_SITE`
-- `ADMIN_EMAIL`
-- `ADMIN_PASSWORD`
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-- `PAYSTACK_SECRET_KEY`
-- `NEXT_PUBLIC_PAYSTACK_PUBLICKEY`
-- `SMTP_USER`
-- `SMTP_PASS`
-- `INVOICE_RETENTION_DAYS`
-- `INVOICE_CLEANUP_INTERVAL_HOURS`
-- `INVOICE_CLEANUP_ENABLED`
-- `NEXT_PUBLIC_API_URL` (optional, defaults to `/api`)
+### Prerequisites
+- Node.js 18.x or higher
+- MongoDB Atlas account or local MongoDB instance
+- Cloudinary account
+- Paystack account (for payments)
 
-## Next.js Concepts Covered
+### Installation
 
-- App Router layouts and route groups
-- Route handlers (`app/api/*`) for a full-stack API
-- Server utilities and Mongoose models
-- Client components with Redux Toolkit + RTK Query
-- File-based routing with dynamic segments
-- Parallel routes + intercepting routes
-- Server Actions + optimistic UI
-- Caching, tags, and revalidation
-- Streaming with Suspense
-- Edge runtime example + middleware
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Druid-alpha/ShopLuxeNew.git
+   cd ShopLuxeNew
+   ```
 
-## Learning Routes
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-- `/` -> main shop
-- `/next-concepts` -> master checklist
-- `/products/featured` -> cached server page + revalidate
-- `/learn` -> auth parallel + modal routes
-- `/admin/overview` -> parallel routes + revalidation + streaming
-- `/admin/actions/products` -> server actions + optimistic UI
-- `/admin/actions/reviews` -> server actions + optimistic UI
-- `/actions/login` -> auth server action demo
-- `/cart/actions` -> cart server action demo
-- `/api/edge/ping` -> edge runtime
+3. Configure Environment Variables:
+   Create a `.env.local` file and populate the required keys (see `.env.example` or project documentation for the full list of MongoDB, Cloudinary, and Paystack credentials).
 
-## Status
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-All major Next.js concepts requested are now implemented. If you want more, the next natural steps are:
+5. Open [http://localhost:3000](http://localhost:3000) to view the shop.
 
-- Automated tests (Playwright + Vitest)
-- Deployment setup (Vercel)
-- Performance profiling and bundle analysis
+## Contributing
+
+This project is maintained for private boutique operations. For support or feature requests, please contact the repository administrator.
+
+---
+*Built with passion by the ShopLuxe Engineering Team.*

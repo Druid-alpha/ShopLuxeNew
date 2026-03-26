@@ -54,40 +54,66 @@ function PageContent() {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext
       if (!AudioContext) return
       const ctx = new AudioContext()
-      if (ctx.state === 'suspended') {
-        ctx.resume().catch(() => {})
-      }
+      
+      // Crucial: Create oscillator inside the function to ensure fresh start
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
+      
       osc.type = 'sine'
-      osc.frequency.value = frequency
-      gain.gain.value = 0.05
+      osc.frequency.setValueAtTime(frequency, ctx.currentTime)
+      
+      // Quick envelope to avoid clicks
+      gain.gain.setValueAtTime(0, ctx.currentTime)
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.01)
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
+      
       osc.connect(gain)
       gain.connect(ctx.destination)
-      osc.start()
+      
+      osc.start(ctx.currentTime)
       osc.stop(ctx.currentTime + 0.12)
-      osc.onended = () => ctx.close()
+      
+      osc.onended = () => {
+        gain.disconnect()
+        osc.disconnect()
+        ctx.close().catch(() => {})
+      }
     } catch (err) {
-      // Audio might be blocked; ignore.
+      console.warn('Notification audio failed:', err)
     }
   }, [soundEnabled])
 
   useEffect(() => {
     const stored = localStorage.getItem('shopluxe_admin_sound')
-    setSoundEnabled(stored === '1')
+    if (stored === '1') setSoundEnabled(true)
   }, [])
 
-  const enableSound = async () => {
-    setSoundEnabled(true)
-    localStorage.setItem('shopluxe_admin_sound', '1')
-    try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-      if (!AudioContext) return
-      const ctx = new AudioContext()
-      await ctx.resume()
-      ctx.close()
-    } catch {
-      // ignore
+  const toggleSound = async () => {
+    const newState = !soundEnabled
+    setSoundEnabled(newState)
+    localStorage.setItem('shopluxe_admin_sound', newState ? '1' : '0')
+    
+    // Warm up audio context on user gesture
+    if (newState) {
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+        const ctx = new AudioContext()
+        if (ctx.state === 'suspended') await ctx.resume()
+        
+        // Brief test beep
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        gain.gain.value = 0.01
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.start()
+        osc.stop(ctx.currentTime + 0.05)
+        osc.onended = () => ctx.close()
+        
+        toast({ title: 'Notifications Enabled', description: 'Sound alerts are now active for new orders/users.' })
+      } catch (err) {
+        console.error('Failed to enable audio:', err)
+      }
     }
   }
 
@@ -123,13 +149,13 @@ function PageContent() {
         playNotificationSound(740)
       }
     } catch (err) {
-      // Silent fail to avoid noisy UI; admin can refresh manually.
+      // Silent fail
     }
   }, [playNotificationSound, toast, token])
 
   useEffect(() => {
     fetchUsersForNotifications()
-    const timer = setInterval(fetchUsersForNotifications, 15000)
+    const timer = setInterval(fetchUsersForNotifications, 20000) // Increased interval slightly for reliability
     return () => clearInterval(timer)
   }, [fetchUsersForNotifications])
 
@@ -174,19 +200,25 @@ function PageContent() {
     <div className='p-6 space-y-6'>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className='text-2xl font-black tracking-tighter uppercase font-display'>Admin Dashboard</h1>
-          <p className='text-xs font-bold uppercase tracking-widest text-gray-400 mt-1'>Manage products, orders, and customers</p>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm text-gray-500 font-medium">Manage your boutique operations and monitor real-time growth.</p>
         </div>
-        {!soundEnabled && (
-          <Button
-            variant="outline"
-            className="rounded-full text-[10px] font-black uppercase tracking-widest"
-            onClick={enableSound}
+        
+        <div className="flex items-center gap-3 bg-white p-2.5 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="flex flex-col px-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">System Audio</span>
+            <span className="text-xs font-bold text-gray-700">{soundEnabled ? 'Alerts Active' : 'Alerts Muted'}</span>
+          </div>
+          <Button 
+            onClick={toggleSound}
+            variant={soundEnabled ? "default" : "outline"}
+            className={`rounded-xl h-10 px-4 font-bold transition-all ${soundEnabled ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100 shadow-lg' : 'text-gray-400'}`}
           >
-            Enable Alerts
+            {soundEnabled ? '🔔 Disable Sound' : '🔕 Enable Sound'}
           </Button>
-        )}
+        </div>
       </div>
+
       <div className='flex flex-wrap gap-2 mb-8 bg-gray-50 p-2 rounded-2xl w-fit'>
         {[
           { id: 'products', label: 'Products', icon: Package },
