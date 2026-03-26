@@ -207,7 +207,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
   }
 
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false)
-  const [magnifier, setMagnifier] = useState({ show: false, x: 0, y: 0, hex: '#000000' })
+  const [magnifier, setMagnifier] = useState<any>({ show: false, x: 0, y: 0, hex: '#000000' })
 
   const handleEyeDropper = async () => {
     if ((window as any).EyeDropper) {
