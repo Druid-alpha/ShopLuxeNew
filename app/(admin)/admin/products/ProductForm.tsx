@@ -1,5 +1,4 @@
 "use client";
-// @ts-nocheck
 // components/ProductForm.js
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -34,20 +33,20 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
   const [category, setCategory] = useState('')
   const [brand, setBrand] = useState('')
   const [tags, setTags] = useState('')
-  const [images, setImages] = useState([])
-  const [existingImages, setExistingImages] = useState([])
-  const [imagePreviews, setImagePreviews] = useState([])
+  const [images, setImages] = useState<any[]>([])
+  const [existingImages, setExistingImages] = useState<any[]>([])
+  const [imagePreviews, setImagePreviews] = useState<any[]>([])
   const [clothingType, setClothingType] = useState('')
-  const [mainSizes, setMainSizes] = useState([])
+  const [mainSizes, setMainSizes] = useState<any[]>([])
   const [discount, setDiscount] = useState('')
 
   // ---------------- VARIANTS STATE ----------------
-  const [variants, setVariants] = useState([])
+  const [variants, setVariants] = useState<any[]>([])
 
   // ---------------- FILTER OPTIONS ----------------
-  const [categories, setCategories] = useState([])
-  const [brands, setBrands] = useState([])
-  const [colors, setColors] = useState([])
+  const [categories, setCategories] = useState<any[]>([])
+  const [brands, setBrands] = useState<any[]>([])
+  const [colors, setColors] = useState<any[]>([])
   const [sizeOptionsByClothingType, setSizeOptionsByClothingType] = useState({ ...DEFAULT_SIZE_OPTIONS_BY_TYPE })
   const clothingTypes = ['clothes', 'shoes', 'bags', 'eyeglass']
 
@@ -82,7 +81,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
   const isClothingLike = !!category && !isElectronics && !isGrocery
 
   // ---------------- ERRORS ----------------
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState<Record<string, any>>({})
 
   // ---------------- RTK QUERY MUTATIONS ----------------
   const [createProduct] = useCreateProductMutation()
@@ -209,8 +208,8 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
   const [magnifier, setMagnifier] = useState({ show: false, x: 0, y: 0, hex: '#000000' })
 
   const handleEyeDropper = async () => {
-    if (window.EyeDropper) {
-      const eyeDropper = new window.EyeDropper()
+    if ((window as any).EyeDropper) {
+      const eyeDropper = new (window as any).EyeDropper()
       try {
         const result = await eyeDropper.open()
         setNewColorHex(result.sRGBHex)
@@ -432,7 +431,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
     setVariants(prev => {
       const copy = [...prev]
       copy[index].imageFile = file
-      copy[index].imageUrl = URL.createObjectURL(file)
+      copy[index].imageUrl = URL.createObjectURL(file as any)
       return copy
     })
   }
@@ -441,9 +440,9 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
      MAIN IMAGE HANDLERS
   ===================================================== */
   const handleMainImages = e => {
-    const files = Array.from(e.target.files)
+    const files = Array.from((e.target as any).files)
     setImages(prev => [...prev, ...files])
-    setImagePreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))])
+    setImagePreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f as any))])
   }
 
   const removeExistingImage = (public_id) => {
@@ -518,7 +517,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
      CLIENT VALIDATION
   ===================================================== */
   const validate = () => {
-    const errs = {}
+    const errs: Record<string, any> = {}
     if (!title) errs.title = 'Title is required'
     if (!category) errs.category = 'Category required'
     if (price === '' || Number(price) <= 0) errs.price = 'Price required'
@@ -533,7 +532,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
   /* =====================================================
      SUBMIT
   ===================================================== */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault()
     if (!validate()) return
 
@@ -630,7 +629,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
         <div className="flex flex-col gap-4">
           <div className="relative z-20">
             <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Title</label>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Product Name" className="rounded-xl border-gray-100 placeholder:text-gray-300" />
+            <Input value={title} onChange={(e: any) => setTitle((e.target as any).value)} placeholder="Product Name" className="rounded-xl border-gray-100 placeholder:text-gray-300" />
             {errors.title && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase tracking-tight">{errors.title}</p>}
           </div>
 
@@ -638,7 +637,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
             <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Description</label>
             <Textarea
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e: any) => setDescription((e.target as any).value)}
               placeholder="Tell a story about this product..."
               className="rounded-xl border-gray-100 min-h-[120px] placeholder:text-gray-300"
             />
@@ -647,23 +646,23 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
           <div className="grid grid-cols-2 gap-4 md:order-1">
             <div>
               <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Price (NGN )</label>
-              <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" className="rounded-xl border-gray-100" />
+              <Input type="number" value={price} onChange={(e: any) => setPrice((e.target as any).value)} placeholder="0.00" className="rounded-xl border-gray-100" />
               {errors.price && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase tracking-tight">{errors.price}</p>}
             </div>
             <div>
               <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Discount (%)</label>
-              <Input type="number" value={discount} onChange={e => setDiscount(e.target.value)} placeholder="0" className="rounded-xl border-gray-100" />
+              <Input type="number" value={discount} onChange={(e: any) => setDiscount((e.target as any).value)} placeholder="0" className="rounded-xl border-gray-100" />
             </div>
           </div>
 
           <div className="relative z-20 md:order-2">
             <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Base Stock</label>
-            <Input type="number" value={stock} onChange={e => setStock(e.target.value)} placeholder="0" className="rounded-xl border-gray-100" />
+            <Input type="number" value={stock} onChange={(e: any) => setStock((e.target as any).value)} placeholder="0" className="rounded-xl border-gray-100" />
           </div>
 
           <div>
             <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Tags (comma separated)</label>
-            <Input value={tags} onChange={e => setTags(e.target.value)} placeholder="luxury, limited, winter" className="rounded-xl border-gray-100" />
+            <Input value={tags} onChange={(e: any) => setTags((e.target as any).value)} placeholder="luxury, limited, winter" className="rounded-xl border-gray-100" />
           </div>
 
           {/* MAIN PRODUCT SIZES / SPECS - admin picks which sizes or specs this product is available in */}
@@ -680,10 +679,10 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        const val = e.target.value.trim();
+                        const val = (e.target as any).value.trim();
                         if (val && !mainSizes.includes(val)) {
                           setMainSizes(prev => [...prev, val]);
-                          e.target.value = '';
+                          (e.target as any).value = '';
                         }
                       }
                     }}
@@ -691,7 +690,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                   <Button
                     type="button"
                     onClick={(e) => {
-                      const input = e.currentTarget.previousSibling;
+                      const input = (e.currentTarget as any).previousSibling;
                       const val = input.value.trim();
                       if (val && !mainSizes.includes(val)) {
                         setMainSizes(prev => [...prev, val]);
@@ -751,7 +750,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
           <div className="grid grid-cols-2 gap-4 md:order-3">
             <div>
               <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Category</label>
-              <select value={category} onChange={e => setCategory(e.target.value)} className="w-full h-10 px-3 py-2 text-sm border-gray-100 rounded-xl focus:outline-none focus:ring-0 focus:border-black transition-colors appearance-none">
+              <select value={category} onChange={(e: any) => setCategory((e.target as any).value)} className="w-full h-10 px-3 py-2 text-sm border-gray-100 rounded-xl focus:outline-none focus:ring-0 focus:border-black transition-colors appearance-none">
                 <option value="">Select category</option>
                 {categories.map(c => (
                   <option key={c._id} value={c._id}>{c.name}</option>
@@ -763,7 +762,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
             {brands.length > 0 && (
               <div>
                 <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Brand</label>
-                <select value={brand} onChange={e => setBrand(e.target.value)} className="w-full h-10 px-3 py-2 text-sm border-gray-100 rounded-xl focus:outline-none focus:ring-0 focus:border-black transition-colors appearance-none">
+                <select value={brand} onChange={(e: any) => setBrand((e.target as any).value)} className="w-full h-10 px-3 py-2 text-sm border-gray-100 rounded-xl focus:outline-none focus:ring-0 focus:border-black transition-colors appearance-none">
                   <option value="">Select brand</option>
                   {brands.map(b => (
                     <option key={b._id} value={b._id}>{b.name}</option>
@@ -780,7 +779,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                 <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Size Type</label>
                 <select
                   value={clothingType}
-                  onChange={e => handleClothingTypeChange(e.target.value)}
+                  onChange={(e: any) => handleClothingTypeChange((e.target as any).value)}
                   className="w-full h-10 px-3 py-2 text-sm border-gray-100 rounded-xl focus:outline-none focus:ring-0 focus:border-black transition-colors appearance-none"
                 >
                   <option value="">- None / No sizes -</option>
@@ -816,7 +815,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                         <Input
                           type="color"
                           value={newColorHex}
-                          onChange={e => setNewColorHex(e.target.value)}
+                          onChange={(e: any) => setNewColorHex((e.target as any).value)}
                           className="w-12 h-12 p-0 border-2 border-white rounded-full overflow-hidden shadow-md cursor-pointer ring-1 ring-zinc-200"
                         />
                         <div className="absolute inset-0 rounded-full pointer-events-none border border-black/5"></div>
@@ -824,7 +823,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                       <Input
                         placeholder="Color Name (optional)"
                         value={newColorName}
-                        onChange={e => setNewColorName(e.target.value)}
+                        onChange={(e: any) => setNewColorName((e.target as any).value)}
                         className="flex-1 bg-white text-xs border-zinc-200 rounded-xl h-10 font-bold"
                       />
                     </div>
@@ -847,8 +846,8 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                   <div className="relative">
                     <select
                       value={color}
-                      onChange={e => {
-                        setColor(e.target.value)
+                      onChange={(e: any) => {
+                        setColor((e.target as any).value)
                         setHasTouchedColor(true)
                       }}
                       className="w-full h-11 pl-4 pr-10 py-2 text-sm border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all appearance-none bg-white font-medium text-gray-700 shadow-sm"
@@ -949,13 +948,13 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                         <Input
                           type="color"
                           value={newColorHex}
-                          onChange={e => setNewColorHex(e.target.value)}
+                          onChange={(e: any) => setNewColorHex((e.target as any).value)}
                           className="w-10 h-10 p-0 border-0 rounded-lg overflow-hidden shadow-sm cursor-pointer"
                         />
                         <Input
                           placeholder="Color Name..."
                           value={newColorName}
-                          onChange={e => setNewColorName(e.target.value)}
+                          onChange={(e: any) => setNewColorName((e.target as any).value)}
                           className="h-10 text-[10px] bg-white border-blue-100 px-2 flex-1 font-bold"
                         />
                       </div>
@@ -972,7 +971,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                       </Button>
                     </div>
                   ) : (
-                    <select value={v.options.color} onChange={e => updateVariant(idx, 'color', e.target.value)} className="w-full h-10 px-2 py-2 text-[10px] border-white bg-white rounded-xl focus:outline-none focus:ring-0 truncate pr-6 appearance-none">
+                    <select value={v.options.color} onChange={(e: any) => updateVariant(idx, 'color', (e.target as any).value)} className="w-full h-10 px-2 py-2 text-[10px] border-white bg-white rounded-xl focus:outline-none focus:ring-0 truncate pr-6 appearance-none">
                       <option value="">Select</option>
                       {colors.map(c => (
                         <option key={c._id} value={c._id}>{c.name}</option>
@@ -992,7 +991,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                   {clothingType ? (
                     <select
                       value={v.options.size}
-                      onChange={e => updateVariant(idx, 'size', e.target.value)}
+                      onChange={(e: any) => updateVariant(idx, 'size', (e.target as any).value)}
                       className="w-full h-10 px-3 py-2 text-[10px] border-white bg-white rounded-xl focus:outline-none focus:ring-0"
                     >
                       <option value="">- Pick size -</option>
@@ -1003,7 +1002,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                   ) : (
                     <Input
                       value={v.options.size}
-                      onChange={e => updateVariant(idx, 'size', e.target.value)}
+                      onChange={(e: any) => updateVariant(idx, 'size', (e.target as any).value)}
                       placeholder="e.g. One Size"
                       className="rounded-xl border-white bg-white text-[10px]"
                     />
@@ -1013,21 +1012,21 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                 {/* PRICE */}
                 <div>
                   <label className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Price (NGN )</label>
-                  <Input type="number" value={v.price} onChange={e => updateVariant(idx, 'price', e.target.value)} className="rounded-xl border-white bg-white text-[10px]" />
+                  <Input type="number" value={v.price} onChange={(e: any) => updateVariant(idx, 'price', (e.target as any).value)} className="rounded-xl border-white bg-white text-[10px]" />
                   {errors[`price_${idx}`] && <p className="text-red-500 text-[8px] mt-1 font-bold uppercase">{errors[`price_${idx}`]}</p>}
                 </div>
 
                 {/* DISCOUNT */}
                 <div>
                   <label className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Discount (%)</label>
-                  <Input type="number" value={v.discount} onChange={e => updateVariant(idx, 'discount', e.target.value)} className="rounded-xl border-white bg-white text-[10px]" />
+                  <Input type="number" value={v.discount} onChange={(e: any) => updateVariant(idx, 'discount', (e.target as any).value)} className="rounded-xl border-white bg-white text-[10px]" />
                 </div>
 
                 {/* STOCK + IMAGE + DELETE */}
                 <div className="md:col-span-2 space-y-2">
                   <div>
                     <label className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Stock</label>
-                    <Input type="number" value={v.stock} onChange={e => updateVariant(idx, 'stock', e.target.value)} className="rounded-xl border-white bg-white text-[10px]" />
+                    <Input type="number" value={v.stock} onChange={(e: any) => updateVariant(idx, 'stock', (e.target as any).value)} className="rounded-xl border-white bg-white text-[10px]" />
                   </div>
                   <div className="flex items-center gap-3">
                     <label className="relative flex-1 h-20 rounded-xl overflow-hidden border-2 border-dashed border-gray-200 bg-white cursor-pointer hover:border-black transition-colors">
@@ -1047,7 +1046,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={e => handleVariantFile(idx, e.target.files[0])}
+                        onChange={(e: any) => handleVariantFile(idx, (e.target as any).files[0])}
                         className="absolute inset-0 opacity-0 cursor-pointer"
                       />
                     </label>
@@ -1091,7 +1090,7 @@ export default function ProductForm({ product, onClose, onSuccess, closeOnSucces
                     className="w-full cursor-crosshair opacity-90"
                     onPointerDown={(e) => {
                       e.preventDefault();
-                      const target = e.currentTarget;
+                      const target = (e.currentTarget as any);
                       const rect = target.getBoundingClientRect();
 
                       // Create a persistent canvas for sampling

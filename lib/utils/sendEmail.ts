@@ -15,49 +15,50 @@ const emailTemplate = (title: string, content: string, preheader = "") => `
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>\${title}</title>
+  <title>${title}</title>
   <style>
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f7f7f9; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02); border: 1px solid #f1f1f3; }
-    .header { background: #ffffff; padding: 40px 48px; text-align: center; border-bottom: 1px solid #f1f1f3; }
-    .logo { color: #000000; font-size: 28px; font-weight: 900; letter-spacing: -1px; text-decoration: none; font-style: normal; display: inline-block; }
-    .logo span { color: #ff3366; } /* Premium accent */
-    .tagline { font-size: 11px; text-transform: uppercase; letter-spacing: 0.3em; color: #8e8e93; font-weight: 700; margin-top: 8px; }
-    .content { padding: 48px; color: #1c1c1e; line-height: 1.6; font-size: 16px; background: #ffffff; }
-    .footer { padding: 32px 48px; text-align: center; background-color: #fafafa; color: #8e8e93; font-size: 12px; border-top: 1px solid #f1f1f3; line-height: 1.8; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: none; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 48px; text-align: center; color: white; }
+    .logo { color: #ffffff; font-size: 32px; font-weight: 900; letter-spacing: -1px; text-decoration: none; font-style: normal; display: inline-block; }
+    .logo span { color: #ffeb3b; } /* Bright yellow accent */
+    .tagline { font-size: 12px; text-transform: uppercase; letter-spacing: 0.4em; color: rgba(255,255,255,0.8); font-weight: 700; margin-top: 8px; }
+    .content { padding: 48px; color: #2d3748; line-height: 1.7; font-size: 16px; background: #ffffff; }
+    .footer { padding: 32px 48px; text-align: center; background-color: #f7fafc; color: #718096; font-size: 12px; border-top: 1px solid #edf2f7; line-height: 1.8; }
     .footer p { margin: 4px 0; }
-    .button { display: inline-block; background: #000000; color: #ffffff !important; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; text-transform: none; letter-spacing: 0.5px; font-size: 15px; margin: 24px 0; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .otp-box { background: #fbfbfc; border: 1px solid #ebebf0; padding: 24px; text-align: center; border-radius: 12px; margin: 24px 0; }
-    .otp-code { font-size: 36px; font-weight: 800; letter-spacing: 12px; color: #000000; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    h1 { margin-top: 0; font-size: 26px; font-weight: 800; color: #000000; letter-spacing: -0.5px; line-height: 1.3; }
-    .meta { font-size: 13px; color: #8e8e93; font-weight: 500; margin-bottom: 24px; display: block; }
-    .muted { color: #8e8e93; font-size: 14px; }
-    .card { border: 1px solid #ebebf0; border-radius: 12px; padding: 24px; background: #fcfcfd; margin: 24px 0; }
-    .divider { border-top: 1px solid #ebebf0; margin: 32px 0; }
-    .list { padding-left: 24px; margin: 16px 0; color: #3a3a3c; }
-    .list li { margin-bottom: 8px; }
+    .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff !important; padding: 16px 36px; border-radius: 50px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 14px; margin: 24px 0; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+    .otp-box { background: linear-gradient(to right, #fdfbfb, #ebedee); border: 2px dashed #cbd5e0; padding: 32px; text-align: center; border-radius: 16px; margin: 24px 0; }
+    .otp-code { font-size: 42px; font-weight: 900; letter-spacing: 16px; color: #4a5568; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; text-shadow: 2px 2px 4px rgba(0,0,0,0.05); }
+    h1 { margin-top: 0; font-size: 28px; font-weight: 800; color: #2d3748; letter-spacing: -0.5px; line-height: 1.3; }
+    .meta { font-size: 14px; color: #718096; font-weight: 600; margin-bottom: 24px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+    .muted { color: #a0aec0; font-size: 14px; }
+    .card { border: 1px solid #e2e8f0; border-left: 4px solid #667eea; border-radius: 12px; padding: 24px; background: #ebedee; margin: 24px 0; }
+    .divider { border-top: 2px solid #edf2f7; margin: 32px 0; }
+    .list { padding-left: 24px; margin: 16px 0; color: #4a5568; }
+    .list li { margin-bottom: 12px; font-weight: 500; }
     .preheader { display: none !important; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0; }
-    a { color: #000000; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+    a { color: #667eea; font-weight: 700; text-decoration: none; border-bottom: 2px solid rgba(102, 126, 234, 0.3); padding-bottom: 2px; transition: border-color 0.2s; }
+    a:hover { border-color: #667eea; }
   </style>
 </head>
 <body>
-  \${preheader ? \`<span class="preheader">\${preheader}</span>\` : ""}
+  ${preheader ? `<span class="preheader">${preheader}</span>` : ""}
   <div class="container">
     <div class="header">
-      <a href="\${process.env.CLIENT_URL || "https://shopluxe.com"}" class="logo">ShopLuxe<span>.</span></a>
+      <a href="${process.env.CLIENT_URL || "https://shopluxe.com"}" class="logo">ShopLuxe<span>.</span></a>
       <div class="tagline">Premium Retail</div>
     </div>
     <div class="content">
-      \${content}
+      ${content}
     </div>
     <div class="footer">
-      <p>&copy; \${new Date().getFullYear()} ShopLuxe. All rights reserved.</p>
+      <p>&copy; ${new Date().getFullYear()} ShopLuxe. All rights reserved.</p>
       <p>Zone 7, Ota-Efun Osogbo, Osun, Nigeria</p>
     </div>
   </div>
 </body>
 </html>
-\`;
+`;
 
 
 export default async function sendEmail({
@@ -102,8 +103,9 @@ export default async function sendEmail({
 
     const finalHtml = htmlContent ? emailTemplate(title || subject, htmlContent, preheader) : undefined;
 
+    const senderName = process.env.APP_NAME || "ShopLuxe";
     await transporter.sendMail({
-      from: `"${process.env.APP_NAME || "ShopLuxe."}" <${smtpFrom}>`,
+      from: `"${senderName}" <${smtpFrom}>`,
       to,
       subject,
       text,

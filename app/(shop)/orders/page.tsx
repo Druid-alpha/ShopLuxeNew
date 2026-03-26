@@ -135,11 +135,11 @@ function PageContent() {
                   filesToSend.forEach((file) => {
                     if (file) formData.append('files', file)
                   })
-                  const res = await fetch(apiUrl(\`/orders/\${order._id}/return/message/user\`), {
+                  const res = await fetch(apiUrl(`/orders/${order._id}/return/message/user`), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
-                      ...(token ? { Authorization: \`Bearer \${token}\` } : {})
+                      ...(token ? { Authorization: `Bearer ${token}` } : {})
                     },
                     body: formData
                   })
@@ -175,7 +175,7 @@ function PageContent() {
                       <p className="text-xs font-semibold text-gray-500">{estimateEtaRange(order).label}</p>
                     )}
                   </div>
-                  <span className={\`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border \${meta.tone}\`}>
+                  <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${meta.tone}`}>
                     <Icon size={14} />
                     {meta.label}
                   </span>
@@ -227,7 +227,7 @@ function PageContent() {
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-black rounded-full transition-all"
-                        style={{ width: \`\${((stepIndex + 1) / TRACK_STEPS.length) * 100}%\` }}
+                        style={{ width: `${((stepIndex + 1) / TRACK_STEPS.length) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -238,7 +238,7 @@ function PageContent() {
                     Total: <span className="font-semibold text-gray-900">NGN {(order.totalAmount || 0).toLocaleString()}</span>
                   </div>
                   {returnStatus && (
-                    <span className={\`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border \${
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                       returnStatus === 'approved'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                         : returnStatus === 'rejected'
@@ -246,7 +246,7 @@ function PageContent() {
                           : returnStatus === 'requested'
                             ? 'bg-amber-50 text-amber-700 border-amber-100'
                             : 'bg-gray-50 text-gray-500 border-gray-200'
-                    }\`}>
+                    }`}>
                       Return {returnStatus}
                     </span>
                   )}
@@ -263,14 +263,14 @@ function PageContent() {
                         return (
                           <div key={idx} className="flex flex-col gap-1">
                             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                              {msg.by}{msg.status ? \` • \${msg.status}\` : ''}{timeLabel ? \` • \${timeLabel}\` : ''}
+                              {msg.by}{msg.status ? ` • ${msg.status}` : ''}{timeLabel ? ` • ${timeLabel}` : ''}
                             </span>
                             <span>{msg.message}</span>
                             {Array.isArray(msg.attachments) && msg.attachments.length > 0 && (
                               <div className="flex flex-wrap gap-2 pt-1">
                                 {msg.attachments.map((url: string, fileIdx: number) => (
                                   <a
-                                    key={\`\${url}-\${fileIdx}\`}
+                                    key={`${url}-${fileIdx}`}
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -306,7 +306,7 @@ function PageContent() {
                         <div className="flex flex-wrap gap-2">
                           {files.map((file: any, idx: number) => (
                             <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-                              <img src={file.previewUrl} alt={\`Attachment \${idx + 1}\`} className="w-full h-full object-cover" />
+                              <img src={file.previewUrl} alt={`Attachment ${idx + 1}`} className="w-full h-full object-cover" />
                               <button
                                 type="button"
                                 onClick={() => setDraftFiles(prev => ({ ...prev, [order._id]: prev[order._id].filter((_: any, i: number) => i !== idx) }))}
@@ -335,10 +335,10 @@ function PageContent() {
                   )}
                   <div className="flex gap-3">
                     <Button variant="outline" asChild className="rounded-xl">
-                      <Link href={\`/orders/\${order._id}\`}>Track Order</Link>
+                      <Link href={`/orders/${order._id}`}>Track Order</Link>
                     </Button>
                     <Button asChild className="rounded-xl">
-                      <Link href={\`/orders/\${order._id}\`}>View Receipt</Link>
+                      <Link href={`/orders/${order._id}`}>View Receipt</Link>
                     </Button>
                   </div>
                 </div>
