@@ -24,7 +24,7 @@ const STATUS_META = {
 }
 
 const TRACK_STEPS = ['Placed', 'Processing', 'Shipped', 'Delivered']
-const progressIndex = (status) => {
+const progressIndex = (status: string) => {
   switch (status) {
     case 'pending':
     case 'paid':
@@ -40,7 +40,7 @@ const progressIndex = (status) => {
   }
 }
 
-const formatMessageTime = (msg) => {
+const formatMessageTime = (msg: any) => {
   const raw = msg?.createdAt || msg?.sentAt || msg?.timestamp || msg?.time || msg?.date
   if (!raw) return ''
   const date = new Date(raw)
@@ -57,9 +57,9 @@ function PageContent() {
     refetchOnReconnect: true,
   })
   const [sendReturnMessage, { isLoading: isSendingMessage }] = useAddReturnMessageUserMutation()
-  const [draftMessages, setDraftMessages] = React.useState({})
-  const [draftFiles, setDraftFiles] = React.useState({})
-  const fileInputRefs = React.useRef({})
+  const [draftMessages, setDraftMessages] = React.useState<Record<string, string>>({})
+  const [draftFiles, setDraftFiles] = React.useState<Record<string, any[]>>({})
+  const fileInputRefs = React.useRef<Record<string, any>>({})
   const ordersRaw = data?.orders || data || []
   const orders = Array.isArray(ordersRaw)
     ? [...ordersRaw].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -108,11 +108,9 @@ function PageContent() {
         <div className="space-y-4">
           {orders.map((order) => {
             const statusKey = String(order.status || 'pending').toLowerCase()
-            const meta = STATUS_META[statusKey] || STATUS_META.pending
+            const meta = STATUS_META[statusKey as keyof typeof STATUS_META] || STATUS_META.pending
             const Icon = meta.icon
             const stepIndex = progressIndex(statusKey)
-            const itemCount = order.items?.reduce((sum, item) => sum + (item.qty || 0), 0) || 0
-            const firstItem = order.items?.[0]?.title || 'Items'
             const returnStatus = order?.returnStatus && order.returnStatus !== 'none'
               ? order.returnStatus
               : null
@@ -137,11 +135,11 @@ function PageContent() {
                   filesToSend.forEach((file) => {
                     if (file) formData.append('files', file)
                   })
-                  const res = await fetch(apiUrl(`/orders/${order._id}/return/message/user`), {
+                  const res = await fetch(apiUrl(\`/orders/\${order._id}/return/message/user\`), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
-                      ...(token ? { Authorization: `Bearer ${token}` } : {})
+                      ...(token ? { Authorization: \`Bearer \${token}\` } : {})
                     },
                     body: formData
                   })
@@ -155,7 +153,7 @@ function PageContent() {
                 setDraftFiles(prev => ({ ...prev, [order._id]: [] }))
                 if (fileInputRefs.current[order._id]) fileInputRefs.current[order._id].value = ''
                 refetch()
-              } catch (err) {
+              } catch (err: any) {
                 toast({
                   title: 'Message failed',
                   description: err?.data?.message || 'Please try again.',
@@ -171,16 +169,46 @@ function PageContent() {
                     <p className="text-xs font-black uppercase tracking-widest text-gray-400">Order ID</p>
                     <p className="text-sm font-bold text-gray-900">{order._id}</p>
                     <p className="text-xs text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {itemCount} item{itemCount !== 1 ? 's' : ''} · {firstItem}
+                      {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                     {estimateEtaRange(order)?.label && (
                       <p className="text-xs font-semibold text-gray-500">{estimateEtaRange(order).label}</p>
                     )}
                   </div>
-                  <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${meta.tone}`}>
+                  <span className={\`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border \${meta.tone}\`}>
                     <Icon size={14} />
                     {meta.label}
                   </span>
+                </div>
+
+                {/* Items List */}
+                <div className="flex flex-wrap gap-4 pt-2">
+                  {order.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 border border-gray-100 p-3 rounded-xl min-w-[200px] flex-1">
+                      <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {item.image ? (
+                           <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        ) : (
+                           <Package className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <span className="text-xs font-bold text-gray-900 line-clamp-1">{item.title}</span>
+                        <div className="text-[10px] text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-gray-700 bg-white px-2 py-0.5 rounded border">Qty: {item.qty || 1}</span>
+                          {(item.size || item.clothingSize) && (
+                            <span className="bg-white px-2 py-0.5 rounded border">Size: {item.size || item.clothingSize}</span>
+                          )}
+                          {item.color && (
+                            <div className="flex items-center gap-1.5 bg-white px-2 py-0.5 rounded border">
+                              <span className="w-2.5 h-2.5 rounded-full border border-gray-200" style={{ backgroundColor: item.code || item.color }}></span>
+                              <span>{item.color}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 {stepIndex === null ? (
@@ -199,7 +227,7 @@ function PageContent() {
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-black rounded-full transition-all"
-                        style={{ width: `${((stepIndex + 1) / TRACK_STEPS.length) * 100}%` }}
+                        style={{ width: \`\${((stepIndex + 1) / TRACK_STEPS.length) * 100}%\` }}
                       />
                     </div>
                   </div>
@@ -210,7 +238,7 @@ function PageContent() {
                     Total: <span className="font-semibold text-gray-900">NGN {(order.totalAmount || 0).toLocaleString()}</span>
                   </div>
                   {returnStatus && (
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                    <span className={\`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border \${
                       returnStatus === 'approved'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                         : returnStatus === 'rejected'
@@ -218,7 +246,7 @@ function PageContent() {
                           : returnStatus === 'requested'
                             ? 'bg-amber-50 text-amber-700 border-amber-100'
                             : 'bg-gray-50 text-gray-500 border-gray-200'
-                    }`}>
+                    }\`}>
                       Return {returnStatus}
                     </span>
                   )}
@@ -230,19 +258,19 @@ function PageContent() {
                   {Array.isArray(order.returnMessages) && order.returnMessages.length > 0 && (
                     <div className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2 text-[11px] font-semibold text-slate-700 space-y-2">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">Message History</span>
-                      {order.returnMessages.map((msg, idx) => {
+                      {order.returnMessages.map((msg: any, idx: number) => {
                         const timeLabel = formatMessageTime(msg)
                         return (
                           <div key={idx} className="flex flex-col gap-1">
                             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                              {msg.by}{msg.status ? ` • ${msg.status}` : ''}{timeLabel ? ` • ${timeLabel}` : ''}
+                              {msg.by}{msg.status ? \` • \${msg.status}\` : ''}{timeLabel ? \` • \${timeLabel}\` : ''}
                             </span>
                             <span>{msg.message}</span>
                             {Array.isArray(msg.attachments) && msg.attachments.length > 0 && (
                               <div className="flex flex-wrap gap-2 pt-1">
-                                {msg.attachments.map((url, fileIdx) => (
+                                {msg.attachments.map((url: string, fileIdx: number) => (
                                   <a
-                                    key={`${url}-${fileIdx}`}
+                                    key={\`\${url}-\${fileIdx}\`}
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -276,12 +304,12 @@ function PageContent() {
                       />
                       {files.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                          {files.map((file, idx) => (
+                          {files.map((file: any, idx: number) => (
                             <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-                              <img src={file.previewUrl} alt={`Attachment ${idx + 1}`} className="w-full h-full object-cover" />
+                              <img src={file.previewUrl} alt={\`Attachment \${idx + 1}\`} className="w-full h-full object-cover" />
                               <button
                                 type="button"
-                                onClick={() => setDraftFiles(prev => ({ ...prev, [order._id]: prev[order._id].filter((_, i) => i !== idx) }))}
+                                onClick={() => setDraftFiles(prev => ({ ...prev, [order._id]: prev[order._id].filter((_: any, i: number) => i !== idx) }))}
                                 className="absolute top-1 right-1 bg-white/90 text-gray-700 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center"
                               >
                                 ×
@@ -307,10 +335,10 @@ function PageContent() {
                   )}
                   <div className="flex gap-3">
                     <Button variant="outline" asChild className="rounded-xl">
-                      <Link href={`/orders/${order._id}`}>Track Order</Link>
+                      <Link href={\`/orders/\${order._id}\`}>Track Order</Link>
                     </Button>
                     <Button asChild className="rounded-xl">
-                      <Link href={`/orders/${order._id}`}>View Receipt</Link>
+                      <Link href={\`/orders/\${order._id}\`}>View Receipt</Link>
                     </Button>
                   </div>
                 </div>
@@ -323,14 +351,12 @@ function PageContent() {
   )
 }
 
-
-
-
-
 export default function Page() {
-  return (<ProtectedRoute roles={["user", "admin"]}><PageTransition>
-    <PageContent />
-  </PageTransition></ProtectedRoute>
+  return (
+    <ProtectedRoute roles={["user", "admin"]}>
+      <PageTransition>
+        <PageContent />
+      </PageTransition>
+    </ProtectedRoute>
   );
 }
-

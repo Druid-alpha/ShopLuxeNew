@@ -20,6 +20,8 @@ import {
 
 import { Heart, LogOut, Menu, Package, Shield, ShoppingCart, User, X, ArrowRight } from 'lucide-react'
 import { useGetWishlistQuery } from '@/features/wishlist/wishlistApi'
+import { useGetAllOrdersQuery } from '@/features/orders/orderApi'
+import { apiUrl } from '@/lib/apiBase'
 
 const SOCIAL_LINKS = [
   {
@@ -61,20 +63,51 @@ export default function Navbar() {
   const dispatch = useAppDispatch()
   const pathname = usePathname()
   const router = useRouter()
-  const navigate = (path) => router.push(path)
+  const navigate = (path: string) => router.push(path)
   const isAdmin = String(user?.role || '').toLowerCase() === 'admin'
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
-  
-
-  
-
   
   // Wishlist count
   const { data: wishlistData } = useGetWishlistQuery(undefined, { skip: !user })
   const wishlistCount = user
     ? (wishlistData?.wishlist?.length || 0)
     : guestWishlistCount
+
+  // Admin New Notifications Count
+  const { data: adminOrdersData } = useGetAllOrdersQuery(undefined, { skip: !isAdmin, pollingInterval: 15000 })
+  const newOrdersBadge = React.useMemo(() => {
+    if (!isAdmin || !adminOrdersData?.orders) return 0
+    const lastSeen = typeof window !== 'undefined' ? window.localStorage.getItem('shopluxe_admin_last_seen_orders') : null
+    if (!lastSeen) return adminOrdersData.orders.length
+    const date = new Date(lastSeen)
+    return adminOrdersData.orders.filter((o: any) => new Date(o.createdAt || 0) > date).length
+  }, [adminOrdersData, isAdmin])
+
+  const [newUsersBadge, setNewUsersBadge] = React.useState(0)
+  React.useEffect(() => {
+    if (!isAdmin) return
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch(apiUrl('/admin/users?sortBy=created-1&sort=created-1'), {
+          credentials: 'include',
+          headers: { Authorization: `Bearer ${user?.token || ''}` }
+        })
+        const data = await res.json()
+        if (data?.users) {
+          const lastSeen = window.localStorage.getItem('shopluxe_admin_last_seen_users')
+          if (!lastSeen) setNewUsersBadge(data.users.length)
+          else {
+            const date = new Date(lastSeen)
+            setNewUsersBadge(data.users.filter((u: any) => new Date(u.createdAt || 0) > date).length)
+          }
+        }
+      } catch (e) {}
+    }
+    fetchUsers()
+    const int = setInterval(fetchUsers, 15000)
+    return () => clearInterval(int)
+  }, [isAdmin, user?.token])
 
   const [logoutApi] = useLogoutMutation()
   const avatarSrc = typeof user?.avatar === 'string' ? user.avatar : undefined
@@ -86,10 +119,8 @@ export default function Navbar() {
     } catch (err) {
       console.error('Logout error:', err)
     } finally {
-      // Always clear local auth state after attempting server logout.
       dispatch(logoutAndReset())
       navigate('/login')
-      // Force reload to ensure all states are wiped
       setTimeout(() => window.location.reload(), 100)
     }
   }
@@ -112,10 +143,10 @@ export default function Navbar() {
   }, [mobileOpen])
 
   const adminLinks = [
-    { name: 'Dashboard', path: '/admin' },
-    { name: 'Products', path: '/admin/products' },
-    { name: 'Users', path: '/admin/users' },
-    { name: 'Orders', path: '/admin/orders' },
+    { name: 'Dashboard', path: '/admin', badge: newOrdersBadge + newUsersBadge },
+    { name: 'Products', path: '/admin/products', badge: 0 },
+    { name: 'Users', path: '/admin/users', badge: newUsersBadge },
+    { name: 'Orders', path: '/admin/orders', badge: newOrdersBadge },
   ]
 
   return (
@@ -136,9 +167,10 @@ export default function Navbar() {
           </div>
         </Link>
         <form
-          onSubmit={(e) => {
+          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault()
-            const q = e.target.search.value
+            const target = e.target as typeof e.target & { search: { value: string } }
+            const q = target.search.value
             if (q) navigate(`/products?search=${q}`)
           }}
           className="relative hidden lg:block flex-1 max-w-sm mx-8"
@@ -175,8 +207,6 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-
-         
 
           {/* User menu */}
           {!mounted ? (
@@ -215,7 +245,12 @@ export default function Navbar() {
                     <DropdownMenuSeparator />
                     {adminLinks.map((link) => (
                       <DropdownMenuItem asChild key={link.path}>
-                        <Link href={link.path}>{link.name}</Link>
+                        <Link href={link.path} className="flex justify-between items-center w-full">
+                          <span>{link.name}</span>
+                          {link.badge > 0 && (
+                             <span className="ml-2 bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 rounded-full">{link.badge}</span>
+                          )}
+                        </Link>
                       </DropdownMenuItem>
                     ))}
                   </>
@@ -300,9 +335,10 @@ export default function Navbar() {
             {/* Search Bar */}
             <div className="p-6">
               <form
-                onSubmit={(e) => {
+                onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                   e.preventDefault()
-                  const q = e.target.search.value
+                  const target = e.target as typeof e.target & { search: { value: string } }
+                  const q = target.search.value
                   if (q) {
                     navigate(`/products?search=${q}`)
                     setMobileOpen(false)
@@ -387,11 +423,16 @@ export default function Navbar() {
                     <Link
                       key={link.path}
                       href={link.path}
-                      className="flex items-center gap-4 p-4 rounded-2xl hover:bg-purple-50 transition-colors"
+                      className="flex items-center justify-between p-4 rounded-2xl hover:bg-purple-50 transition-colors"
                       onClick={() => setMobileOpen(false)}
                     >
-                      <Shield size={18} className="text-purple-600" />
-                      <span className="text-sm font-black uppercase tracking-tight text-purple-900">{link.name}</span>
+                      <div className="flex items-center gap-4">
+                         <Shield size={18} className="text-purple-600" />
+                         <span className="text-sm font-black uppercase tracking-tight text-purple-900">{link.name}</span>
+                      </div>
+                      {link.badge > 0 && (
+                         <span className="bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{link.badge}</span>
+                      )}
                     </Link>
                   ))}
                 </div>
@@ -460,7 +501,3 @@ export default function Navbar() {
     </header>
   )
 }
-
-
-
-

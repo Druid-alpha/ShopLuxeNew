@@ -1,7 +1,7 @@
 "use client"
 
-import PageTransition from "@/components/PageTransition";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import PageTransition from "@/components/PageTransition"
+import ProtectedRoute from "@/components/ProtectedRoute"
 
 import Link from "next/link"
 import { Button } from '@/components/ui/button'
@@ -37,13 +37,13 @@ function PageContent() {
   )
   const returnRequestCount = orders.filter(o => o?.returnStatus === 'requested').length
   const [soundEnabled, setSoundEnabled] = useState(false)
-  const getLastSeen = (key) => {
+  const getLastSeen = (key: string) => {
     const value = localStorage.getItem(key)
     if (!value) return null
     const date = new Date(value)
     return Number.isNaN(date.getTime()) ? null : date
   }
-  const setLastSeen = (key, date) => {
+  const setLastSeen = (key: string, date: any) => {
     if (!date) return
     localStorage.setItem(key, new Date(date).toISOString())
   }
@@ -141,14 +141,24 @@ function PageContent() {
       setNewOrdersCount(0)
       return
     }
-    const count = sortedOrders.filter(o => {
+    const newItems = sortedOrders.filter(o => {
       const createdAt = o?.createdAt ? new Date(o.createdAt) : null
       return createdAt && createdAt > lastSeen
-    }).length
+    })
+    const count = newItems.length
+    
+    if (count > newOrdersCount) {
+      const diff = count - newOrdersCount
+      toast({
+        title: 'New order received',
+        description: `${diff} new order${diff > 1 ? 's' : ''} just arrived.`
+      })
+      playNotificationSound(880)
+    }
     setNewOrdersCount(count)
-  }, [sortedOrders])
+  }, [sortedOrders, newOrdersCount, playNotificationSound, toast])
 
-  const handleTabChange = (id) => {
+  const handleTabChange = (id: string) => {
     setTab(id)
     if (id === 'users') {
       setNewUsersCount(0)
@@ -219,19 +229,17 @@ function PageContent() {
         {tab === 'orders' && <AdminOrders />}
         {tab === 'reviews' && <AdminReviews />}
         {tab === 'analytics' && <AdminAnalytics />}
-
       </div>
     </div>
   )
 }
 
-
-
-
 export default function Page() {
-  return (<ProtectedRoute roles={["admin"]}><PageTransition>
-    <PageContent />
-  </PageTransition></ProtectedRoute>
-  );
+  return (
+    <ProtectedRoute roles={["admin"]}>
+      <PageTransition>
+        <PageContent />
+      </PageTransition>
+    </ProtectedRoute>
+  )
 }
-
