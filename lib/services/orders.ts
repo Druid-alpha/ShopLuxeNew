@@ -239,8 +239,54 @@ export async function listMyOrders(request: NextRequest) {
     }
 
     const orders = await Order.find({ user: auth.userId })
-      .populate("items.product", "title images image thumbnail")
+      .populate("items.product", "title images image thumbnail variants")
       .sort({ createdAt: -1 });
+
+    // Ensure order items include the exact variant image when possible.
+    (orders as any[]).forEach((order) => {
+      const items = Array.isArray(order?.items) ? order.items : [];
+      items.forEach((item: any) => {
+        if (item?.image) return;
+        const product = item?.product;
+        const variants = Array.isArray(product?.variants) ? product.variants : [];
+        if (!variants.length) return;
+
+        const v = item?.variant || {};
+        const vId = v?._id ? String(v._id) : '';
+        const vSku = v?.sku ? String(v.sku) : '';
+        const vSize = v?.size ? String(v.size) : '';
+        const vColor = v?.color ? String(v.color) : '';
+
+        let match = null;
+        if (vId) {
+          match = variants.find((vr: any) => String(vr?._id) === vId);
+        }
+        if (!match && vSku) {
+          match = variants.find((vr: any) => String(vr?.sku) === vSku);
+        }
+        if (!match && (vSize || vColor)) {
+          match = variants.find((vr: any) => {
+            const sizeMatch = vSize ? String(vr?.options?.size || '') === vSize : true;
+            const colorVal = vr?.options?.color;
+            const colorId = typeof colorVal === 'object' ? String(colorVal?._id || '') : String(colorVal || '');
+            const colorName = typeof colorVal === 'object' ? String(colorVal?.name || '') : '';
+            const colorMatch = vColor ? (vColor === colorId || vColor.toLowerCase() === colorName.toLowerCase()) : true;
+            return sizeMatch && colorMatch;
+          });
+        }
+
+        if (match?.image?.url) {
+          item.image = match.image.url;
+        } else if (product?.images?.[0]?.url) {
+          item.image = product.images[0].url;
+        } else if (product?.image?.url) {
+          item.image = product.image.url;
+        } else if (product?.thumbnail) {
+          item.image = product.thumbnail;
+        }
+      });
+    });
+
     return NextResponse.json({ orders });
   } catch (error) {
     console.error(error);
