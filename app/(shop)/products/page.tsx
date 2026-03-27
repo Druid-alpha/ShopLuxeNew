@@ -10,7 +10,7 @@ import ProductCard from '@/features/products/ProductCard'
 import { Button } from '@/components/ui/button'
 import { useGetProductsQuery } from '@/features/products/productApi'
 import axios from '@/lib/axios'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import clsx from 'clsx'
 import RecentlyViewed from '@/components/RecentlyViewed'
 
@@ -367,10 +367,17 @@ function PageContent() {
 
           {/* Pagination */}
           <div className="flex flex-wrap justify-center items-center gap-2 mt-10">
-            <Button disabled={page <= 1 || isFetching} onClick={() => {
+            <Button
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-full"
+              disabled={page <= 1 || isFetching}
+              onClick={() => {
               setPage(p => Math.max(1, p - 1))
               window.scrollTo({ top: 0, behavior: 'smooth' })
-            }}>Prev</Button>
+            }}
+            >
+              <ChevronLeft size={16} />
+            </Button>
             <div className="flex flex-wrap items-center gap-1">
               {buildPageItems(page, totalPages).map((p, idx) => (
                 p === '...'
@@ -393,10 +400,17 @@ function PageContent() {
                   )
               ))}
             </div>
-            <Button disabled={page >= totalPages || isFetching} onClick={() => {
+            <Button
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-full"
+              disabled={page >= totalPages || isFetching}
+              onClick={() => {
               setPage(p => Math.min(totalPages, p + 1))
               window.scrollTo({ top: 0, behavior: 'smooth' })
-            }}>Next</Button>
+            }}
+            >
+              <ChevronRight size={16} />
+            </Button>
           </div>
 
           <div className="mt-16">

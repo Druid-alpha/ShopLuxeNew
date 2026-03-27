@@ -180,6 +180,9 @@ export async function createOrder(request: NextRequest) {
         itemImage = resolvedVariant.image.url;
       }
 
+      const lineTotal = Number(price || 0) * Number(cartItem.qty || 0);
+      total += lineTotal;
+
       orderItems.push({
         product: product._id,
         title: product.title,

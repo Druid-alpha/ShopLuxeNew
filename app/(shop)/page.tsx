@@ -210,7 +210,7 @@ function PageContent() {
   const isLoading = isFeaturedLoading || (shouldFetchFallback && isFallbackLoading)
   const isFetching = isFeaturedFetching || (shouldFetchFallback && isFallbackFetching)
   const isError = shouldFetchFallback ? isFallbackError : false
-  const showSkeleton = (isLoading || isFetching) && displayedFeaturedProducts.length === 0
+  const showSkeleton = mounted && (isLoading || isFetching) && displayedFeaturedProducts.length === 0
 
   const handleRefetch = () => {
     refetchFeatured()
@@ -359,7 +359,7 @@ function PageContent() {
         </section>
 
         {/* PERSONALIZED PICKS */}
-        {(user || personalizedProducts.length > 0) && (
+        {mounted && (user || personalizedProducts.length > 0) && (
           <section className="mt-10">
             <motion.div
               initial="hidden"
@@ -422,7 +422,7 @@ function PageContent() {
                   <div className="h-4 bg-gray-200 rounded w-1/2" />
                 </div>
               ))
-              : displayedFeaturedProducts.map(product => (
+              : (mounted ? displayedFeaturedProducts : []).map(product => (
                 <motion.div key={product._id} variants={fadeUp} className="h-full">
                   <ProductCard product={product} />
                 </motion.div>
