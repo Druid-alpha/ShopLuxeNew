@@ -238,7 +238,9 @@ export async function listMyOrders(request: NextRequest) {
       console.warn("[ORDER LIST] Reservation cleanup skipped:", cleanupErr?.message || cleanupErr);
     }
 
-    const orders = await Order.find({ user: auth.userId }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: auth.userId })
+      .populate("items.product", "title images image thumbnail")
+      .sort({ createdAt: -1 });
     return NextResponse.json({ orders });
   } catch (error) {
     console.error(error);

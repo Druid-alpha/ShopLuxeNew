@@ -194,13 +194,11 @@ function PageContent() {
                     const title = item.title || item?.product?.title || 'Product'
                     return (
                       <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 bg-gray-50/50 border border-gray-100 p-4 rounded-2xl min-w-[280px] flex-1">
-                        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm flex items-center justify-center">
-                          {imageUrl ? (
+                        {imageUrl ? (
+                          <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm flex items-center justify-center">
                             <img src={imageUrl} alt={title} className="w-full h-full object-contain transition-transform hover:scale-110 duration-500" />
-                          ) : (
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Item</span>
-                          )}
-                        </div>
+                          </div>
+                        ) : null}
                         <div className="flex flex-col flex-1 min-w-0">
                           <span className="text-sm font-black text-gray-900 line-clamp-1 mb-1">{title}</span>
                           <div className="flex items-center gap-2 flex-wrap">
