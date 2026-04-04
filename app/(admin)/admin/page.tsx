@@ -55,29 +55,33 @@ function PageContent() {
       if (!AudioContext) return
       const ctx = new AudioContext()
       
-      // Crucial: Create oscillator inside the function to ensure fresh start
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(frequency, ctx.currentTime)
-      
-      // Quick envelope to avoid clicks
-      gain.gain.setValueAtTime(0, ctx.currentTime)
-      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.01)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
-      
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.12)
-      
-      osc.onended = () => {
-        gain.disconnect()
-        osc.disconnect()
-        ctx.close().catch(() => {})
+      const playTone = (freq: number, startAt: number, duration: number, peak: number) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'triangle'
+        osc.frequency.setValueAtTime(freq, startAt)
+
+        // Envelope for clear and louder ping without clicks
+        gain.gain.setValueAtTime(0, startAt)
+        gain.gain.linearRampToValueAtTime(peak, startAt + 0.01)
+        gain.gain.exponentialRampToValueAtTime(0.001, startAt + duration)
+
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.start(startAt)
+        osc.stop(startAt + duration)
+        osc.onended = () => {
+          gain.disconnect()
+          osc.disconnect()
+        }
       }
+
+      const now = ctx.currentTime
+      // Two-tone chime for better audibility
+      playTone(frequency, now, 0.18, 0.22)
+      playTone(frequency * 0.75, now + 0.2, 0.16, 0.2)
+
+      setTimeout(() => ctx.close().catch(() => {}), 500)
     } catch (err) {
       console.warn('Notification audio failed:', err)
     }
@@ -103,11 +107,11 @@ function PageContent() {
         // Brief test beep
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
-        gain.gain.value = 0.01
+        gain.gain.value = 0.08
         osc.connect(gain)
         gain.connect(ctx.destination)
         osc.start()
-        osc.stop(ctx.currentTime + 0.05)
+        osc.stop(ctx.currentTime + 0.08)
         osc.onended = () => ctx.close()
         
         toast({ title: 'Notifications Enabled', description: 'Sound alerts are now active for new orders/users.' })

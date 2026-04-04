@@ -100,6 +100,15 @@ function PageContent() {
     if (id) refetch()
   }, [id, refetch])
 
+  React.useEffect(() => {
+    const handlePageShow = () => {
+      if (!id) return
+      refetch()
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [id, refetch])
+
   // Invalidate product cache once paid so stock reflects
   React.useEffect(() => {
     if (order?.paymentStatus === 'paid') {
@@ -175,7 +184,10 @@ function PageContent() {
       return true
     }
     const downloadViaNavigation = (url) => {
-      window.location.assign(url)
+      const win = window.open(url, '_blank', 'noopener')
+      if (!win) {
+        window.location.assign(url)
+      }
       return true
     }
 

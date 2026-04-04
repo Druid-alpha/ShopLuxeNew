@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   useGetAdminReviewsQuery,
   useDeleteReviewAdminMutation,
@@ -26,6 +26,7 @@ export default function AdminReviews() {
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
+  const [compactPages, setCompactPages] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     rating: "",
@@ -50,16 +51,45 @@ export default function AdminReviews() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
   const buildPageItems = (current: number, total: number) => {
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const items: Array<number | string> = [1];
-    const start = Math.max(2, current - 1);
-    const end = Math.min(total - 1, current + 1);
-    if (start > 2) items.push("...");
-    for (let i = start; i <= end; i += 1) items.push(i);
-    if (end < total - 1) items.push("...");
-    items.push(total);
+    if (total <= 0) return [];
+    const siblingCount = compactPages ? 1 : 2;
+    const boundaryCount = 1;
+    const maxVisible = boundaryCount * 2 + siblingCount * 2 + 3;
+    if (total <= maxVisible) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const items: Array<number | string> = [];
+    const startPages = Array.from({ length: boundaryCount }, (_, i) => i + 1);
+    const endPages = Array.from({ length: boundaryCount }, (_, i) => total - boundaryCount + 1 + i);
+
+    const leftSibling = Math.max(current - siblingCount, boundaryCount + 2);
+    const rightSibling = Math.min(current + siblingCount, total - boundaryCount - 1);
+
+    items.push(...startPages);
+
+    if (leftSibling > boundaryCount + 2) {
+      items.push("...");
+    } else {
+      for (let i = boundaryCount + 1; i < leftSibling; i += 1) items.push(i);
+    }
+
+    for (let i = leftSibling; i <= rightSibling; i += 1) items.push(i);
+
+    if (rightSibling < total - boundaryCount - 1) {
+      items.push("...");
+    } else {
+      for (let i = rightSibling + 1; i <= total - boundaryCount; i += 1) items.push(i);
+    }
+
+    items.push(...endPages);
     return items;
   };
+
+  useEffect(() => {
+    const updateCompact = () => setCompactPages(window.innerWidth < 640);
+    updateCompact();
+    window.addEventListener("resize", updateCompact);
+    return () => window.removeEventListener("resize", updateCompact);
+  }, []);
 
   const handleToggleFeature = async (id: string) => {
     try {
@@ -376,7 +406,7 @@ export default function AdminReviews() {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex flex-wrap justify-center items-center gap-2 pt-10">
+        <div className="flex items-center gap-2 pt-10 overflow-x-auto flex-nowrap px-1 justify-start sm:justify-center">
           <Button
             disabled={page <= 1}
             onClick={() => {
@@ -384,11 +414,11 @@ export default function AdminReviews() {
               scrollToListTop();
             }}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl shrink-0"
           >
             Prev
           </Button>
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex items-center gap-1 flex-nowrap min-w-max">
             {buildPageItems(page, totalPages).map((p, idx) =>
               p === "..." ? (
                 <span key={`ellipsis-${idx}`} className="px-2 text-xs text-gray-400">
@@ -402,7 +432,7 @@ export default function AdminReviews() {
                     setPage(p as number);
                     scrollToListTop();
                   }}
-                  className={`h-8 min-w-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors ${
+                  className={`h-8 min-w-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors shrink-0 ${
                     p === page
                       ? "bg-black text-white border-black"
                       : "bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black"
@@ -420,7 +450,7 @@ export default function AdminReviews() {
               scrollToListTop();
             }}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl shrink-0"
           >
             Next
           </Button>

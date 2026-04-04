@@ -23,6 +23,24 @@ const SIZE_TYPE_LABEL = {
   eyeglass: 'Frame'
 }
 
+const normalizeVariantIdentity = (variant) => {
+  if (!variant) return 'base'
+  if (typeof variant === 'string') return variant || 'base'
+  const id = variant?._id ? String(variant._id) : ''
+  if (id) return `id:${id}`
+  const sku = variant?.sku ? String(variant.sku) : ''
+  if (sku) return `sku:${sku}`
+  const size = variant?.size || variant?.options?.size || ''
+  let color = variant?.color || variant?.options?.color || variant?.colorName || variant?.colorHex || ''
+  if (typeof color === 'object' && color !== null) {
+    color = color?._id || color?.name || color?.hex || ''
+  }
+  const colorValue = String(color || '').toLowerCase()
+  const sizeValue = String(size || '').toLowerCase()
+  const key = `${colorValue}|${sizeValue}`.trim()
+  return key === '|' ? 'base' : `opt:${key}`
+}
+
 function VariantBadges({ item }) {
   const clothingTypeKey = item.clothingType === 'bag' ? 'bags' : item.clothingType
   const isClothing = CLOTHING_TYPES.has(clothingTypeKey)
@@ -489,8 +507,14 @@ function PageContent() {
   };
 
   const changeVariant = async (item, nextVariant) => {
-    const isBaseSelection = !nextVariant
-    if (isBaseSelection && !item.variant && !item.variantPayload) return
+    const currentVariant = (item.variantPayload && Object.keys(item.variantPayload).length > 0)
+      ? item.variantPayload
+      : (item.variant || null)
+    const currentKey = normalizeVariantIdentity(currentVariant)
+    const nextKey = normalizeVariantIdentity(nextVariant)
+    if (currentKey === nextKey) return
+
+    const isBaseSelection = nextKey === 'base'
     const updatingKey = `${item.key}-variant`
     if (updatingItems[updatingKey]) return
     setUpdatingItems(prev => ({ ...prev, [updatingKey]: true }))
@@ -541,9 +565,7 @@ function PageContent() {
     }
 
     try {
-      const oldVariantArg = (item.variantPayload && Object.keys(item.variantPayload).length > 0)
-        ? item.variantPayload
-        : (item.variant || null)
+      const oldVariantArg = currentKey === 'base' ? null : currentVariant
       if (isBaseSelection) {
         // Remove variant first, then add base item.
         await cartApi.removeCartItem(item.productId, oldVariantArg)

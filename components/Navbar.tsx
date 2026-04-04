@@ -67,6 +67,7 @@ export default function Navbar() {
   const isAdmin = String(user?.role || '').toLowerCase() === 'admin'
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
+  const [lastSeenTick, setLastSeenTick] = React.useState(0)
   
   // Wishlist count
   const { data: wishlistData } = useGetWishlistQuery(undefined, { skip: !user })
@@ -79,12 +80,30 @@ export default function Navbar() {
   const newOrdersBadge = React.useMemo(() => {
     if (!isAdmin || !adminOrdersData?.orders) return 0
     const lastSeen = typeof window !== 'undefined' ? window.localStorage.getItem('shopluxe_admin_last_seen_orders') : null
-    if (!lastSeen) return adminOrdersData.orders.length
+    if (!lastSeen) return 0
     const date = new Date(lastSeen)
     return adminOrdersData.orders.filter((o: any) => new Date(o.createdAt || 0) > date).length
-  }, [adminOrdersData, isAdmin])
+  }, [adminOrdersData, isAdmin, lastSeenTick])
 
   const [newUsersBadge, setNewUsersBadge] = React.useState(0)
+  const markAdminSeen = React.useCallback(() => {
+    if (!isAdmin) return
+    const now = new Date().toISOString()
+    window.localStorage.setItem('shopluxe_admin_last_seen_orders', now)
+    window.localStorage.setItem('shopluxe_admin_last_seen_users', now)
+    setNewUsersBadge(0)
+    setLastSeenTick(Date.now())
+  }, [isAdmin])
+
+  React.useEffect(() => {
+    if (!isAdmin || !adminOrdersData?.orders) return
+    const lastSeen = window.localStorage.getItem('shopluxe_admin_last_seen_orders')
+    if (!lastSeen) {
+      window.localStorage.setItem('shopluxe_admin_last_seen_orders', new Date().toISOString())
+      setLastSeenTick(Date.now())
+    }
+  }, [adminOrdersData, isAdmin])
+
   React.useEffect(() => {
     if (!isAdmin) return
     const fetchUsers = async () => {
@@ -96,8 +115,11 @@ export default function Navbar() {
         const data = await res.json()
         if (data?.users) {
           const lastSeen = window.localStorage.getItem('shopluxe_admin_last_seen_users')
-          if (!lastSeen) setNewUsersBadge(data.users.length)
-          else {
+          if (!lastSeen) {
+            window.localStorage.setItem('shopluxe_admin_last_seen_users', new Date().toISOString())
+            setNewUsersBadge(0)
+            return
+          } else {
             const date = new Date(lastSeen)
             setNewUsersBadge(data.users.filter((u: any) => new Date(u.createdAt || 0) > date).length)
           }
@@ -134,6 +156,13 @@ export default function Navbar() {
   }, [])
 
   React.useEffect(() => {
+    if (!isAdmin) return
+    if (pathname.startsWith('/admin')) {
+      markAdminSeen()
+    }
+  }, [isAdmin, markAdminSeen, pathname])
+
+  React.useEffect(() => {
     document.body.dataset.mobileNavOpen = mobileOpen ? '1' : '0'
     window.dispatchEvent(new CustomEvent('shopluxe:mobile-nav', { detail: { open: mobileOpen } }))
     return () => {
@@ -144,9 +173,6 @@ export default function Navbar() {
 
   const adminLinks = [
     { name: 'Dashboard', path: '/admin', badge: newOrdersBadge + newUsersBadge },
-    { name: 'Products', path: '/admin/products', badge: 0 },
-    { name: 'Users', path: '/admin/users', badge: newUsersBadge },
-    { name: 'Orders', path: '/admin/orders', badge: newOrdersBadge },
   ]
 
   return (
@@ -245,7 +271,7 @@ export default function Navbar() {
                     <DropdownMenuSeparator />
                     {adminLinks.map((link) => (
                       <DropdownMenuItem asChild key={link.path}>
-                        <Link href={link.path} className="flex justify-between items-center w-full">
+                        <Link href={link.path} onClick={markAdminSeen} className="flex justify-between items-center w-full">
                           <span>{link.name}</span>
                           {link.badge > 0 && (
                              <span className="ml-2 bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 rounded-full">{link.badge}</span>
@@ -424,7 +450,10 @@ export default function Navbar() {
                       key={link.path}
                       href={link.path}
                       className="flex items-center justify-between p-4 rounded-2xl hover:bg-purple-50 transition-colors"
-                      onClick={() => setMobileOpen(false)}
+                      onClick={() => {
+                        markAdminSeen()
+                        setMobileOpen(false)
+                      }}
                     >
                       <div className="flex items-center gap-4">
                          <Shield size={18} className="text-purple-600" />

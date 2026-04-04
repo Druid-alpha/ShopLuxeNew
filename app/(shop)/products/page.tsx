@@ -49,6 +49,7 @@ function PageContent() {
   const [saleOnly, setSaleOnly] = React.useState(
     ['1', 'true', 'yes'].includes(String(searchParams.get('sale') || '').toLowerCase())
   )
+  const [compactPages, setCompactPages] = React.useState(false)
   const [suggestions, setSuggestions] = React.useState<string[]>([])
   const handleSearch = React.useCallback((value?: string) => {
     const next = typeof value === 'string' ? value : search
@@ -71,15 +72,44 @@ function PageContent() {
     tag.setAttribute('content', content)
   }, [])
   const buildPageItems = React.useCallback((current, total): Array<number | '...'> => {
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-    const items: Array<number | '...'> = [1]
-    const start = Math.max(2, current - 1)
-    const end = Math.min(total - 1, current + 1)
-    if (start > 2) items.push('...')
-    for (let i = start; i <= end; i += 1) items.push(i)
-    if (end < total - 1) items.push('...')
-    items.push(total)
+    if (total <= 0) return []
+    const siblingCount = compactPages ? 1 : 2
+    const boundaryCount = 1
+    const maxVisible = boundaryCount * 2 + siblingCount * 2 + 3
+    if (total <= maxVisible) return Array.from({ length: total }, (_, i) => i + 1)
+
+    const items: Array<number | '...'> = []
+    const startPages = Array.from({ length: boundaryCount }, (_, i) => i + 1)
+    const endPages = Array.from({ length: boundaryCount }, (_, i) => total - boundaryCount + 1 + i)
+
+    const leftSibling = Math.max(current - siblingCount, boundaryCount + 2)
+    const rightSibling = Math.min(current + siblingCount, total - boundaryCount - 1)
+
+    items.push(...startPages)
+
+    if (leftSibling > boundaryCount + 2) {
+      items.push('...')
+    } else {
+      for (let i = boundaryCount + 1; i < leftSibling; i += 1) items.push(i)
+    }
+
+    for (let i = leftSibling; i <= rightSibling; i += 1) items.push(i)
+
+    if (rightSibling < total - boundaryCount - 1) {
+      items.push('...')
+    } else {
+      for (let i = rightSibling + 1; i <= total - boundaryCount; i += 1) items.push(i)
+    }
+
+    items.push(...endPages)
     return items
+  }, [compactPages])
+
+  React.useEffect(() => {
+    const updateCompact = () => setCompactPages(window.innerWidth < 640)
+    updateCompact()
+    window.addEventListener('resize', updateCompact)
+    return () => window.removeEventListener('resize', updateCompact)
   }, [])
 
   // Keep local state in sync when URL params change externally (e.g. navbar/home category links).
@@ -366,10 +396,10 @@ function PageContent() {
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-wrap justify-center items-center gap-2 mt-10">
+          <div className="flex items-center gap-2 mt-10 overflow-x-auto flex-nowrap px-1 justify-start sm:justify-center">
             <Button
               variant="outline"
-              className="h-9 w-9 p-0 rounded-full"
+              className="h-9 w-9 p-0 rounded-full shrink-0"
               disabled={page <= 1 || isFetching}
               onClick={() => {
               setPage(p => Math.max(1, p - 1))
@@ -378,7 +408,7 @@ function PageContent() {
             >
               <ChevronLeft size={16} />
             </Button>
-            <div className="flex flex-wrap items-center gap-1">
+            <div className="flex items-center gap-1 flex-nowrap min-w-max">
               {buildPageItems(page, totalPages).map((p, idx) => (
                 p === '...'
                   ? <span key={`ellipsis-${idx}`} className="px-2 text-xs text-gray-400">…</span>
@@ -390,7 +420,7 @@ function PageContent() {
                         setPage(p)
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                       }}
-                      className={`h-8 min-w-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors ${p === page
+                      className={`h-8 min-w-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors shrink-0 ${p === page
                         ? 'bg-black text-white border-black'
                         : 'bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black'
                         }`}
@@ -402,7 +432,7 @@ function PageContent() {
             </div>
             <Button
               variant="outline"
-              className="h-9 w-9 p-0 rounded-full"
+              className="h-9 w-9 p-0 rounded-full shrink-0"
               disabled={page >= totalPages || isFetching}
               onClick={() => {
               setPage(p => Math.min(totalPages, p + 1))

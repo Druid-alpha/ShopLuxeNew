@@ -8,6 +8,22 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   try {
+    const baseURL = config.baseURL || "";
+    let url = config.url || "";
+    if (url && !url.startsWith("http") && !url.startsWith("//")) {
+      if (url.startsWith("/")) {
+        if (baseURL.endsWith("/api") && url.startsWith("/api")) {
+          url = url.replace(/^\/api\/?/, "");
+        } else {
+          url = url.replace(/^\/+/, "");
+        }
+        config.url = url;
+      }
+    }
+  } catch {
+    // Ignore URL normalization errors
+  }
+  try {
     const token = localStorage.getItem("accessToken");
     if (token) {
       const headers = (config.headers ?? {}) as AxiosRequestHeaders;
