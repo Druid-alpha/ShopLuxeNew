@@ -40,7 +40,9 @@ function PageContent() {
   const [returnMessage, setReturnMessage] = React.useState('')
   const [returnFiles, setReturnFiles] = React.useState([])
   const returnFileInputRef = React.useRef(null)
-  const order = data?.order
+  const liveOrder = data?.order
+  const [stableOrder, setStableOrder] = React.useState<any>(null)
+  const order = liveOrder || stableOrder
   const eta = estimateEtaRange(order)
   const timelineSteps = ['pending', 'paid', 'processing', 'shipped', 'delivered']
   const statusIndex = timelineSteps.indexOf(order?.status || 'pending')
@@ -115,6 +117,10 @@ function PageContent() {
       dispatch(productApi.util.invalidateTags(['Product']))
     }
   }, [order?.paymentStatus, dispatch])
+
+  React.useEffect(() => {
+    if (liveOrder) setStableOrder(liveOrder)
+  }, [liveOrder])
 
   React.useEffect(() => {
     if (order?.invoiceUrl) {
@@ -321,7 +327,7 @@ function PageContent() {
     setReturnFiles(previews)
   }
 
-  if (queryError) return (
+  if (queryError && !order) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center space-y-4">
       <div className="bg-red-50 p-4 rounded-full text-red-500"><LogOut size={32} /></div>
       <h2 className="text-xl font-bold">Failed to load order</h2>
