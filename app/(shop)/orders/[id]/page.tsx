@@ -177,14 +177,6 @@ function PageContent() {
       link.remove()
       window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 5000)
       return true
-      const link = document.createElement('a')
-      link.href = objectUrl
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(objectUrl)
-      return true
     }
     const downloadViaNavigation = (url) => {
       const win = window.open(url, '_blank', 'noopener')
