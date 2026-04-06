@@ -313,7 +313,14 @@ function PageContent() {
             <>
               <button
                 type="button"
-                onClick={() => setShowNewOnly(prev => !prev)}
+                onClick={() => {
+                  setShowNewOnly((prev) => {
+                    const next = !prev
+                    // When leaving the "new only" view, mark seen.
+                    if (prev && !next) markOrdersSeen()
+                    return next
+                  })
+                }}
                 className={`h-8 px-4 rounded-full border text-[10px] font-black uppercase tracking-widest transition-colors ${showNewOnly ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black'}`}
                 title="Show orders created since last seen"
               >
