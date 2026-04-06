@@ -43,6 +43,7 @@ function PageContent() {
   const [lastUpdated, setLastUpdated] = React.useState(null)
   const [showReservedOnly, setShowReservedOnly] = React.useState(false)
   const [showReturnOnly, setShowReturnOnly] = React.useState(false)
+  const [showNewOnly, setShowNewOnly] = React.useState(false)
   const [nowTick, setNowTick] = React.useState(Date.now())
   const [returnNotes, setReturnNotes] = React.useState({})
   const [refundAmounts, setRefundAmounts] = React.useState({})
@@ -92,6 +93,8 @@ function PageContent() {
   const [refundOrder, { isLoading: isRefunding }] = useRefundOrderMutation()
   const [orderToDelete, setOrderToDelete] = React.useState(null)
   const [showBulkDelete, setShowBulkDelete] = React.useState(false)
+  const [lastSeenOrders, setLastSeenOrders] = React.useState<Date | null>(null)
+  const lastSeenOrdersKey = 'shopluxe_admin_last_seen_orders'
 
   const orders = data?.orders || []
   const returnRequestCount = orders.filter(o => o?.returnStatus === 'requested').length
@@ -102,6 +105,10 @@ function PageContent() {
   const filteredOrders = orders.filter(o => {
     if (showReservedOnly && o?.paymentStatus !== 'pending') return false
     if (showReturnOnly && o?.returnStatus !== 'requested') return false
+    if (showNewOnly && lastSeenOrders) {
+      const createdAt = o?.createdAt ? new Date(o.createdAt) : null
+      if (!createdAt || createdAt <= lastSeenOrders) return false
+    }
     return true
   })
   const activeDrawerOrder = activeDrawerOrderId
@@ -110,6 +117,34 @@ function PageContent() {
   React.useEffect(() => {
     if (data) setLastUpdated(new Date().toLocaleString())
   }, [data])
+
+  React.useEffect(() => {
+    const raw = localStorage.getItem(lastSeenOrdersKey)
+    if (!raw) return
+    const date = new Date(raw)
+    if (!Number.isNaN(date.getTime())) setLastSeenOrders(date)
+  }, [])
+
+  const isNewOrder = React.useCallback((order) => {
+    if (!lastSeenOrders) return false
+    const createdAt = order?.createdAt ? new Date(order.createdAt) : null
+    return createdAt && createdAt > lastSeenOrders
+  }, [lastSeenOrders])
+
+  const newOrdersSinceSeen = React.useMemo(
+    () => orders.filter((order) => isNewOrder(order)),
+    [isNewOrder, orders]
+  )
+
+  const markOrdersSeen = React.useCallback(() => {
+    const latest = orders[0]?.createdAt || new Date()
+    const date = new Date(latest)
+    if (!Number.isNaN(date.getTime())) {
+      localStorage.setItem(lastSeenOrdersKey, date.toISOString())
+      setLastSeenOrders(date)
+      setShowNewOnly(false)
+    }
+  }, [orders])
 
   React.useEffect(() => {
     const current = { newOrderCount, returnRequestCount }
@@ -273,6 +308,25 @@ function PageContent() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {newOrdersSinceSeen.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowNewOnly(prev => !prev)}
+                className={`h-8 px-4 rounded-full border text-[10px] font-black uppercase tracking-widest transition-colors ${showNewOnly ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black'}`}
+                title="Show orders created since last seen"
+              >
+                {showNewOnly ? 'Showing New' : `New Orders (${newOrdersSinceSeen.length})`}
+              </button>
+              <button
+                type="button"
+                onClick={markOrdersSeen}
+                className="h-8 px-4 rounded-full border text-[10px] font-black uppercase tracking-widest bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black"
+              >
+                Mark Seen
+              </button>
+            </>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -337,12 +391,17 @@ function PageContent() {
             const expiresAt = order?.expiresAt ? new Date(order.expiresAt) : null
             const minutesLeft = expiresAt ? Math.max(0, Math.ceil((expiresAt.getTime() - nowTick) / 60000)) : null
             return (
-              <div key={order._id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-md shadow-black/5">
+              <div key={order._id} className={`rounded-2xl border bg-white p-4 shadow-md shadow-black/5 ${isNewOrder(order) ? 'border-blue-200 bg-blue-50/40' : 'border-gray-200'}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-black text-gray-900">#{String(order._id || '').slice(-8).toUpperCase()}</p>
                     <p className="text-[10px] text-gray-400 font-mono">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
+                  {isNewOrder(order) && (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-600 text-white">
+                      New
+                    </span>
+                  )}
                   <span className={`inline-flex items-center justify-center h-7 px-3 text-[10px] font-bold uppercase rounded-full ${order.paymentStatus === 'paid'
                     ? 'bg-green-100 text-green-700'
                     : order.paymentStatus === 'failed'
@@ -452,10 +511,17 @@ function PageContent() {
                 const expiresAt = order?.expiresAt ? new Date(order.expiresAt) : null
                 const minutesLeft = expiresAt ? Math.max(0, Math.ceil((expiresAt.getTime() - nowTick) / 60000)) : null
                 return (
-                  <tr key={order._id} className="h-16 hover:bg-gray-50/60 transition-colors">
+                  <tr key={order._id} className={`h-16 hover:bg-gray-50/60 transition-colors ${isNewOrder(order) ? 'bg-blue-50/40' : ''}`}>
                     <td className="px-6 py-4 align-middle">
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm font-bold text-gray-900 leading-none">#{String(order._id || '').slice(-8).toUpperCase()}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-gray-900 leading-none">#{String(order._id || '').slice(-8).toUpperCase()}</span>
+                          {isNewOrder(order) && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-600 text-white">
+                              New
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[10px] text-gray-400 font-mono">{new Date(order.createdAt).toLocaleDateString()}</span>
                       </div>
                     </td>

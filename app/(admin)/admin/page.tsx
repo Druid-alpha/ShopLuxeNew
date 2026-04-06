@@ -190,14 +190,6 @@ function PageContent() {
 
   const handleTabChange = (id: string) => {
     setTab(id)
-    if (id === 'users') {
-      setNewUsersCount(0)
-      setLastSeen(lastSeenUsersKey, new Date())
-    }
-    if (id === 'orders') {
-      setNewOrdersCount(0)
-      setLastSeen(lastSeenOrdersKey, new Date())
-    }
   }
 
   return (

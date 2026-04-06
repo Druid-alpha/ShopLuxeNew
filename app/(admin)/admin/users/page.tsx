@@ -24,8 +24,11 @@ function PageContent() {
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [lastSeen, setLastSeen] = useState<Date | null>(null)
+  const [showNewOnly, setShowNewOnly] = useState(false)
   const { toast } = useToast()
   const token = useAppSelector((state) => state.auth.token)
+  const lastSeenUsersKey = 'shopluxe_admin_last_seen_users'
 
   // Fetch users
   const fetchUsers = useCallback(async (silent = false) => {
@@ -63,6 +66,13 @@ function PageContent() {
     return () => clearInterval(timer)
   }, [fetchUsers])
 
+  useEffect(() => {
+    const raw = localStorage.getItem(lastSeenUsersKey)
+    if (!raw) return
+    const date = new Date(raw)
+    if (!Number.isNaN(date.getTime())) setLastSeen(date)
+  }, [])
+
   const usersWithMetadata = useMemo(
     () => users.map((user) => ({
       ...user,
@@ -71,6 +81,29 @@ function PageContent() {
     })),
     [users]
   )
+
+  const isNewUser = useCallback((user) => {
+    if (!lastSeen) return false
+    const createdAt = user?.createdAt ? new Date(user.createdAt) : null
+    return createdAt && createdAt > lastSeen
+  }, [lastSeen])
+
+  const newUsers = useMemo(
+    () => usersWithMetadata.filter((user) => isNewUser(user)),
+    [isNewUser, usersWithMetadata]
+  )
+
+  const visibleUsers = showNewOnly ? newUsers : usersWithMetadata
+
+  const markAllSeen = useCallback(() => {
+    const latest = usersWithMetadata[0]?.createdAt || new Date()
+    const date = new Date(latest)
+    if (!Number.isNaN(date.getTime())) {
+      localStorage.setItem(lastSeenUsersKey, date.toISOString())
+      setLastSeen(date)
+      setShowNewOnly(false)
+    }
+  }, [usersWithMetadata])
 
   // Promote / Demote
   const handleRoleChange = async (userId, newRole) => {
@@ -128,23 +161,43 @@ function PageContent() {
             Last updated: {lastUpdated || 'Just now'}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchUsers(true)}
-          disabled={refreshing}
-          className="gap-2"
-        >
-          <RefreshCcw size={14} className={refreshing ? "animate-spin" : ""} />
-          {refreshing ? "Refreshing..." : "Refresh"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {newUsers.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowNewOnly((prev) => !prev)}
+                className={`h-8 px-4 rounded-full border text-[10px] font-black uppercase tracking-widest transition-colors ${showNewOnly ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black'}`}
+              >
+                {showNewOnly ? 'Showing New' : `New Users (${newUsers.length})`}
+              </button>
+              <button
+                type="button"
+                onClick={markAllSeen}
+                className="h-8 px-4 rounded-full border text-[10px] font-black uppercase tracking-widest bg-white text-gray-500 border-gray-200 hover:text-black hover:border-black"
+              >
+                Mark Seen
+              </button>
+            </>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchUsers(true)}
+            disabled={refreshing}
+            className="gap-2"
+          >
+            <RefreshCcw size={14} className={refreshing ? "animate-spin" : ""} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </Button>
+        </div>
       </div>
 
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Mobile cards */}
       <div className="md:hidden p-4 space-y-4">
-        {usersWithMetadata.map((user) => (
-          <div key={user._id} className="rounded-2xl border border-gray-100 p-4 shadow-sm">
+        {visibleUsers.map((user) => (
+          <div key={user._id} className={`rounded-2xl border p-4 shadow-sm ${isNewUser(user) ? 'border-indigo-200 bg-indigo-50/40' : 'border-gray-100'}`}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
@@ -155,6 +208,11 @@ function PageContent() {
                   <p className="text-xs text-gray-500 truncate">{user.email}</p>
                 </div>
               </div>
+              {isNewUser(user) && (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white">
+                  New
+                </span>
+              )}
               <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                 }`}>
                 {user.role}
@@ -207,14 +265,19 @@ function PageContent() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {usersWithMetadata.map((user) => (
-              <tr key={user._id} className="h-16 hover:bg-gray-50/60 transition-colors">
+            {visibleUsers.map((user) => (
+              <tr key={user._id} className={`h-16 hover:bg-gray-50/60 transition-colors ${isNewUser(user) ? 'bg-indigo-50/40' : ''}`}>
                 <td className="px-6 py-4 align-middle">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
                       {user.name?.[0]?.toUpperCase() || 'U'}
                     </div>
                     <span className="font-semibold text-gray-900">{user.name}</span>
+                    {isNewUser(user) && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white">
+                        New
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 text-gray-600 text-sm align-middle">{user.email}</td>

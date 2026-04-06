@@ -155,7 +155,6 @@ function PageContent() {
     };
 
     const ua = navigator.userAgent || ''
-    const isMobileDevice = /android|iphone|ipad|ipod/i.test(ua)
     const isSafari = /safari/i.test(ua) && !/chrome|crios|android/i.test(ua)
     const downloadViaApi = async (url) => {
       const filename = opt.filename.endsWith('.pdf') ? opt.filename : `${opt.filename}.pdf`
@@ -169,11 +168,14 @@ function PageContent() {
       if (!res.ok) throw new Error(`Download failed: ${res.status}`)
       const blob = await res.blob()
       const objectUrl = window.URL.createObjectURL(blob)
-      if (isMobileDevice) {
-        window.open(objectUrl, '_blank', 'noopener')
-        window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 5000)
-        return true
+      // Mobile-friendly: open the PDF blob in a new tab so it renders instead of a blank page.
+      const previewWindow = window.open(objectUrl, '_blank', 'noopener')
+      if (!previewWindow) {
+        window.location.assign(objectUrl)
       }
+      window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 5000)
+      if (previewWindow) previewWindow.focus()
+      return true
       const link = document.createElement('a')
       link.href = objectUrl
       link.download = filename
@@ -198,8 +200,8 @@ function PageContent() {
         title: 'Download started',
         description: 'Your invoice is being prepared.',
       })
-      if (isMobileDevice || isSafari) {
-        await downloadViaNavigation(backendUrl)
+      if (isSafari) {
+        await downloadViaApi(backendUrl)
       } else {
         await downloadViaApi(backendUrl)
       }
@@ -214,8 +216,8 @@ function PageContent() {
           title: 'Download started',
           description: 'Your invoice is being prepared.',
         })
-        if (isMobileDevice || isSafari) {
-          await downloadViaNavigation(backendUrl)
+        if (isSafari) {
+          await downloadViaApi(backendUrl)
         } else {
           await downloadViaApi(backendUrl)
         }
