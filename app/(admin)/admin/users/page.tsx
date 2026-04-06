@@ -102,6 +102,7 @@ function PageContent() {
       localStorage.setItem(lastSeenUsersKey, date.toISOString())
       setLastSeen(date)
       setShowNewOnly(false)
+      window.dispatchEvent(new Event('shopluxe:admin-seen'))
     }
   }, [usersWithMetadata])
 

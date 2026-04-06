@@ -68,6 +68,8 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
   const [lastSeenTick, setLastSeenTick] = React.useState(0)
+  const [soundEnabled, setSoundEnabled] = React.useState(false)
+  const prevAdminCountsRef = React.useRef<{ orders: number; users: number } | null>(null)
   
   // Wishlist count
   const { data: wishlistData } = useGetWishlistQuery(undefined, { skip: !user })
@@ -86,14 +88,6 @@ export default function Navbar() {
   }, [adminOrdersData, isAdmin, lastSeenTick])
 
   const [newUsersBadge, setNewUsersBadge] = React.useState(0)
-  const markAdminSeen = React.useCallback(() => {
-    if (!isAdmin) return
-    const now = new Date().toISOString()
-    window.localStorage.setItem('shopluxe_admin_last_seen_orders', now)
-    window.localStorage.setItem('shopluxe_admin_last_seen_users', now)
-    setNewUsersBadge(0)
-    setLastSeenTick(Date.now())
-  }, [isAdmin])
 
   React.useEffect(() => {
     if (!isAdmin || !adminOrdersData?.orders) return
@@ -156,11 +150,85 @@ export default function Navbar() {
   }, [])
 
   React.useEffect(() => {
-    if (!isAdmin) return
-    if (pathname.startsWith('/admin')) {
-      markAdminSeen()
+    const stored = localStorage.getItem('shopluxe_admin_sound')
+    if (stored === '1') setSoundEnabled(true)
+  }, [])
+
+  const playAdminAlert = React.useCallback((baseFreq = 880) => {
+    if (!soundEnabled || !isAdmin) return
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+      if (!AudioContext) return
+      const ctx = new AudioContext()
+      const now = ctx.currentTime
+      const playBell = (freq: number, startAt: number, decay: number, peak: number) => {
+        const partials = [1, 1.5, 2.12, 2.8]
+        const master = ctx.createGain()
+        master.gain.setValueAtTime(0, startAt)
+        master.gain.linearRampToValueAtTime(peak, startAt + 0.01)
+        master.gain.exponentialRampToValueAtTime(0.0006, startAt + decay)
+        master.connect(ctx.destination)
+
+        partials.forEach((p, i) => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = 'sine'
+          osc.frequency.setValueAtTime(freq * p, startAt)
+          gain.gain.setValueAtTime(1 / (i + 1.5), startAt)
+          osc.connect(gain)
+          gain.connect(master)
+          osc.start(startAt)
+          osc.stop(startAt + decay)
+          osc.onended = () => {
+            gain.disconnect()
+            osc.disconnect()
+          }
+        })
+      }
+
+      // Custom bell: two shimmering strikes
+      playBell(baseFreq, now, 0.8, 0.9)
+      playBell(baseFreq * 0.78, now + 0.22, 0.7, 0.85)
+      setTimeout(() => ctx.close().catch(() => {}), 1200)
+    } catch {}
+  }, [isAdmin, soundEnabled])
+
+  const toggleSound = React.useCallback(async () => {
+    const next = !soundEnabled
+    setSoundEnabled(next)
+    localStorage.setItem('shopluxe_admin_sound', next ? '1' : '0')
+    if (next) {
+      playAdminAlert(920)
     }
-  }, [isAdmin, markAdminSeen, pathname])
+  }, [playAdminAlert, soundEnabled])
+
+  React.useEffect(() => {
+    if (!isAdmin) return
+    const current = { orders: newOrdersBadge, users: newUsersBadge }
+    if (!prevAdminCountsRef.current) {
+      prevAdminCountsRef.current = current
+      return
+    }
+    const prev = prevAdminCountsRef.current
+    if (current.orders > prev.orders) playAdminAlert(880)
+    if (current.users > prev.users) playAdminAlert(740)
+    prevAdminCountsRef.current = current
+  }, [isAdmin, newOrdersBadge, newUsersBadge, playAdminAlert])
+
+  React.useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'shopluxe_admin_last_seen_orders' || e.key === 'shopluxe_admin_last_seen_users') {
+        setLastSeenTick(Date.now())
+      }
+    }
+    const onSeen = () => setLastSeenTick(Date.now())
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('shopluxe:admin-seen', onSeen as EventListener)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('shopluxe:admin-seen', onSeen as EventListener)
+    }
+  }, [])
 
   React.useEffect(() => {
     document.body.dataset.mobileNavOpen = mobileOpen ? '1' : '0'
@@ -271,7 +339,7 @@ export default function Navbar() {
                     <DropdownMenuSeparator />
                     {adminLinks.map((link) => (
                       <DropdownMenuItem asChild key={link.path}>
-                        <Link href={link.path} onClick={markAdminSeen} className="flex justify-between items-center w-full">
+                        <Link href={link.path} className="flex justify-between items-center w-full">
                           <span>{link.name}</span>
                           {link.badge > 0 && (
                              <span className="ml-2 bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 rounded-full">{link.badge}</span>
@@ -279,6 +347,14 @@ export default function Navbar() {
                         </Link>
                       </DropdownMenuItem>
                     ))}
+                    <DropdownMenuItem onClick={toggleSound}>
+                      <span className="flex justify-between items-center w-full">
+                        <span>Alert Sound</span>
+                        <span className={`ml-2 text-[9px] font-black uppercase px-1.5 rounded-full ${soundEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {soundEnabled ? 'On' : 'Off'}
+                        </span>
+                      </span>
+                    </DropdownMenuItem>
                   </>
                 )}
 
@@ -450,10 +526,7 @@ export default function Navbar() {
                       key={link.path}
                       href={link.path}
                       className="flex items-center justify-between p-4 rounded-2xl hover:bg-purple-50 transition-colors"
-                      onClick={() => {
-                        markAdminSeen()
-                        setMobileOpen(false)
-                      }}
+                      onClick={() => setMobileOpen(false)}
                     >
                       <div className="flex items-center gap-4">
                          <Shield size={18} className="text-purple-600" />
@@ -464,6 +537,19 @@ export default function Navbar() {
                       )}
                     </Link>
                   ))}
+                  <button
+                    type="button"
+                    onClick={toggleSound}
+                    className="flex items-center justify-between p-4 rounded-2xl hover:bg-purple-50 transition-colors w-full"
+                  >
+                    <div className="flex items-center gap-4">
+                      <Shield size={18} className="text-purple-600" />
+                      <span className="text-sm font-black uppercase tracking-tight text-purple-900">Alert Sound</span>
+                    </div>
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${soundEnabled ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                      {soundEnabled ? 'On' : 'Off'}
+                    </span>
+                  </button>
                 </div>
               )}
             </div>

@@ -143,6 +143,7 @@ function PageContent() {
       localStorage.setItem(lastSeenOrdersKey, date.toISOString())
       setLastSeenOrders(date)
       setShowNewOnly(false)
+      window.dispatchEvent(new Event('shopluxe:admin-seen'))
     }
   }, [orders])
 

@@ -168,13 +168,14 @@ function PageContent() {
       if (!res.ok) throw new Error(`Download failed: ${res.status}`)
       const blob = await res.blob()
       const objectUrl = window.URL.createObjectURL(blob)
-      // Mobile-friendly: open the PDF blob in a new tab so it renders instead of a blank page.
-      const previewWindow = window.open(objectUrl, '_blank', 'noopener')
-      if (!previewWindow) {
-        window.location.assign(objectUrl)
-      }
+      // Prefer direct download without opening a new page.
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
       window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 5000)
-      if (previewWindow) previewWindow.focus()
       return true
       const link = document.createElement('a')
       link.href = objectUrl
